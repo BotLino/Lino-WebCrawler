@@ -1,6 +1,7 @@
 import scrapy
 import pdfx
 import json
+import os
 import pandas as pd
 from pprint import pprint
 from tabula import convert_into
@@ -30,6 +31,8 @@ class PdfReader():
     def downloadMenu(self, campus):
         data = self.data
         n = 0
+        if not os.path.exists(OUTPUT_PATH):
+            os.mkdir(OUTPUT_PATH)
         for item in data.body:
             if campus in item['text']:
                 pdf = pdfx.PDFx(item['url'])
@@ -58,7 +61,7 @@ class PdfReader():
 
     def getDayMenu(self, fileName, day):
         df = pd.read_table(
-            f'./outputs/{fileName}.tsv',
+            f'{OUTPUT_PATH}{fileName}.tsv',
             sep='\t',
             na_filter=False,
             header=1,
@@ -70,8 +73,8 @@ class PdfReader():
         return(q[day])
 
     def genJson(self):
-        leg = self.getDayMenu('FGA1','legenda')
-        data = self.getDayMenu('FGA1','sexta')
+        leg = self.getDayMenu('FGA0','legenda')
+        data = self.getDayMenu('FGA0','quinta')
         rows = list(data.index.values)
         obj = {}
         obj['DESJEJUM'] = {}

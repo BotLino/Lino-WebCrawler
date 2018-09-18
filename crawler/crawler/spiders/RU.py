@@ -9,7 +9,6 @@ class RuSpider(scrapy.Spider):
     start_urls = ['http://ru.unb.br/index.php/cardapio-refeitorio']
 
     def parse(self, response):
-        result = []
         for element in response.css(".container .item-page p a"):
             path = element.css("a::attr(href)").extract_first()
             text = element.css("a::text").extract_first()
