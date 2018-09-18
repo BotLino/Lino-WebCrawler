@@ -1,0 +1,5 @@
+crawler/result.json
+crawler/menu.json
+crawler/downloads
+__pycache__
+crawler/outputs/*
