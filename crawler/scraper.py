@@ -2,6 +2,7 @@ import scrapy
 import pdfx
 import json
 import os
+import argparse
 import pandas as pd
 from pprint import pprint
 from tabula import convert_into
@@ -72,9 +73,9 @@ class PdfReader():
         q = self.genQuerry(df)
         return(q[day])
 
-    def genJson(self):
+    def genJson(self, day):
         leg = self.getDayMenu('FGA0','legenda')
-        data = self.getDayMenu('FGA0','quinta')
+        data = self.getDayMenu('FGA0', day)
         rows = list(data.index.values)
         obj = {}
         obj['DESJEJUM'] = {}
@@ -99,9 +100,34 @@ class PdfReader():
         f.write(json.dumps(obj, indent=4, ensure_ascii=False))
         f.close()
 
+parser = argparse.ArgumentParser("Scraper")
+parser.add_argument('-d','--day', help='Search for a specific week day')
+parser.add_argument('-s','--save', help='Download the files and generates new result.json')
+parser.add_argument('-a','--all', help='Run the complete pipeline (Requires -d value)', action='store_true')
 
-crawl = TheCrawler()
-crawl.runCrawler()
-p = PdfReader()
-p.downloadMenu('FGA')
-p.genJson()
+args = parser.parse_args()
+
+if args.all and args.day:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    p.genJson(args.day)
+elif args.all:
+    raise ValueError('-a must have -d value')
+elif args.day:
+    p = PdfReader()
+    p.genJson(args.day)
+elif args.save:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+else:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    p = PdfReader()
+    p.genJson('segunda')
+
