@@ -8,14 +8,16 @@ app.config['JSON_AS_ASCII'] = False
 
 @app.route('/')
 def hello():
-    return redirect(url_for('get_today_menu'))
+    return """
+        <h1>Go to /cardapio/[day] </h1>
+    """
 
-@app.route('/cardapio')
-def menu():
-    f = open('menu.json', 'r')
-    result = json.load(f)
-    print(result)
-    return jsonify(result)
+# @app.route('/cardapio')
+# def menu():
+#     f = open('menu.json', 'r')
+#     result = json.load(f)
+#     print(result)
+#     return jsonify(result)
 
 @app.route('/cardapio/download')
 def get_today_menu():
@@ -24,7 +26,16 @@ def get_today_menu():
         return redirect(url_for('menu'))
     else:
         subprocess.check_output(['python', 'scraper.py'])
-        return redirect(url_for('menu'))
+        return redirect(url_for('hello'))
+
+@app.route('/cardapio/<day>')
+def menu_day(day):
+    subprocess.check_output(['python', 'scraper.py', '-d', day])
+    f = open('menu.json', 'r')
+    result = json.load(f)
+    print(day)
+    print(result)
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(debug=True)
