@@ -51,13 +51,13 @@ class PdfReader():
         cols = list(df.columns.values)
         q = {}
         q['legenda'] = df[cols[0]]
-        q['segunda'] = df[cols[1]] + df[cols[2]]
-        q['terca'] = df[cols[3]] + df[cols[4]]
-        q['quarta'] = df[cols[5]] + df[cols[6]]
-        q['quinta'] = df[cols[7]]
-        q['sexta'] = df[cols[8]] + df[cols[9]]
-        q['sabado'] = df[cols[10]] + df[cols[11]]
-        q['domingo'] = df[cols[12]] + df[cols[13]]
+        q['Monday'] = df[cols[1]] + df[cols[2]]
+        q['Tuesday'] = df[cols[3]] + df[cols[4]]
+        q['Wednesday'] = df[cols[5]] + df[cols[6]]
+        q['Thursday'] = df[cols[7]]
+        q['Friday'] = df[cols[8]] + df[cols[9]]
+        q['Saturday'] = df[cols[10]] + df[cols[11]]
+        q['Sunday'] = df[cols[12]] + df[cols[13]]
         return q
 
     def getDayMenu(self, fileName, day):
