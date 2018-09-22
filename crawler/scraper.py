@@ -1,6 +1,8 @@
 import scrapy
 import pdfx
 import json
+import os
+import argparse
 import pandas as pd
 from pprint import pprint
 from tabula import convert_into
@@ -30,6 +32,8 @@ class PdfReader():
     def downloadMenu(self, campus):
         data = self.data
         n = 0
+        if not os.path.exists(OUTPUT_PATH):
+            os.mkdir(OUTPUT_PATH)
         for item in data.body:
             if campus in item['text']:
                 pdf = pdfx.PDFx(item['url'])
@@ -47,18 +51,18 @@ class PdfReader():
         cols = list(df.columns.values)
         q = {}
         q['legenda'] = df[cols[0]]
-        q['segunda'] = df[cols[1]] + df[cols[2]]
-        q['terca'] = df[cols[3]] + df[cols[4]]
-        q['quarta'] = df[cols[5]] + df[cols[6]]
-        q['quinta'] = df[cols[7]]
-        q['sexta'] = df[cols[8]] + df[cols[9]]
-        q['sabado'] = df[cols[10]] + df[cols[11]]
-        q['domingo'] = df[cols[12]] + df[cols[13]]
+        q['Monday'] = df[cols[1]] + df[cols[2]]
+        q['Tuesday'] = df[cols[3]] + df[cols[4]]
+        q['Wednesday'] = df[cols[5]] + df[cols[6]]
+        q['Thursday'] = df[cols[7]]
+        q['Friday'] = df[cols[8]] + df[cols[9]]
+        q['Saturday'] = df[cols[10]] + df[cols[11]]
+        q['Sunday'] = df[cols[12]] + df[cols[13]]
         return q
 
     def getDayMenu(self, fileName, day):
         df = pd.read_table(
-            f'./outputs/{fileName}.tsv',
+            f'{OUTPUT_PATH}{fileName}.tsv',
             sep='\t',
             na_filter=False,
             header=1,
@@ -69,9 +73,9 @@ class PdfReader():
         q = self.genQuerry(df)
         return(q[day])
 
-    def genJson(self):
-        leg = self.getDayMenu('FGA1','legenda')
-        data = self.getDayMenu('FGA1','sexta')
+    def genJson(self, day):
+        leg = self.getDayMenu('FGA0','legenda')
+        data = self.getDayMenu('FGA0', day)
         rows = list(data.index.values)
         obj = {}
         obj['DESJEJUM'] = {}
@@ -96,9 +100,34 @@ class PdfReader():
         f.write(json.dumps(obj, indent=4, ensure_ascii=False))
         f.close()
 
+parser = argparse.ArgumentParser("Scraper")
+parser.add_argument('-d','--day', help='Search for a specific week day')
+parser.add_argument('-s','--save', help='Download the files and generates new result.json')
+parser.add_argument('-a','--all', help='Run the complete pipeline (Requires -d value)', action='store_true')
 
-crawl = TheCrawler()
-crawl.runCrawler()
-p = PdfReader()
-p.downloadMenu('FGA')
-p.genJson()
+args = parser.parse_args()
+
+if args.all and args.day:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    p.genJson(args.day)
+elif args.all:
+    raise ValueError('-a must have -d value')
+elif args.day:
+    p = PdfReader()
+    p.genJson(args.day)
+elif args.save:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+else:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    p = PdfReader()
+    p.genJson('segunda')
+
