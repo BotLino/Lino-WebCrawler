@@ -129,5 +129,5 @@ else:
     p = PdfReader()
     p.downloadMenu('FGA')
     p = PdfReader()
-    p.genJson('segunda')
+    p.genJson('Monday')
 
