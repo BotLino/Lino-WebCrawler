@@ -134,6 +134,7 @@ parser = argparse.ArgumentParser("Scraper")
 parser.add_argument('-d','--day', help='Search for a specific week day')
 parser.add_argument('-s','--save', help='Download the files and generates new result.json')
 parser.add_argument('-a','--all', help='Run the complete pipeline (Requires -d value)', action='store_true')
+parser.add_argument('-w','--week', help='Search for a week',action='store_true')
 
 args = parser.parse_args()
 
@@ -143,6 +144,12 @@ if args.all and args.day:
     p = PdfReader()
     p.downloadMenu('FGA')
     p.genJson(args.day)
+elif args.all and args.week:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    p.getWeekMenu('FGA0')
 elif args.all:
     raise ValueError('-a must have -d value')
 elif args.day:
@@ -153,11 +160,14 @@ elif args.save:
     crawl.runCrawler()
     p = PdfReader()
     p.downloadMenu('FGA')
+elif args.week:
+    p = PdfReader()
+    p.getWeekMenu('FGA0')
 else:
     crawl = TheCrawler()
     crawl.runCrawler()
     p = PdfReader()
     p.downloadMenu('FGA')
     p = PdfReader()
-    p.getWeekMenu('FGA0')
+    
 

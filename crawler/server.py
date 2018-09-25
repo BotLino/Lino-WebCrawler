@@ -28,6 +28,20 @@ def get_today_menu():
         subprocess.check_output(['python', 'scraper.py'])
         return redirect(url_for('hello'))
 
+@app.route('/cardapio/week')
+def weekMenu():
+    already_exists = os.path.isfile('./weekMenu.json')
+    if already_exists:
+        subprocess.check_output(['python','scraper.py','-w'])
+        f = open('weekMenu.json','r')
+        result = json.load(f)
+        return jsonify(result)
+    else:
+        subprocess.check_output(['python','scraper.py','-a','-w'])
+        f = open('weekMenu.json', 'r')
+        result = json.load(f)
+        return jsonify(result)
+
 @app.route('/cardapio/<day>')
 def menu_day(day):
     already_exists = os.path.isfile('./menu.json')
@@ -43,7 +57,6 @@ def menu_day(day):
         f = open('menu.json', 'r')
         result = json.load(f)
         return jsonify(result)
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
