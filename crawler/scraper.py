@@ -102,6 +102,19 @@ class PdfReader():
         
         return obj
 
+    def genMealJson(self, day):
+        
+        obj = self.genJson(day)
+        f = open('desjejumMenu.json','w')
+        f.write(json.dumps(obj['DESJEJUM'], indent=4, ensure_ascii=False))
+        f.close()
+        f = open('almocoMenu.json','w')
+        f.write(json.dumps(obj['ALMOÇO'], indent=4, ensure_ascii=False))
+        f.close()
+        f = open('jantarMenu.json','w')
+        f.write(json.dumps(obj['JANTAR'], indent=4, ensure_ascii=False))
+        f.close()
+
     def genJson(self, day):
         leg = self.getDayMenu('FGA0','legenda')
         data = self.getDayMenu('FGA0', day)
@@ -169,5 +182,4 @@ else:
     p = PdfReader()
     p.downloadMenu('FGA')
     p = PdfReader()
-    
-
+    p.genMealJson('Monday')
