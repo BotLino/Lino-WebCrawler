@@ -148,6 +148,7 @@ parser.add_argument('-d','--day', help='Search for a specific week day')
 parser.add_argument('-s','--save', help='Download the files and generates new result.json')
 parser.add_argument('-a','--all', help='Run the complete pipeline (Requires -d value)', action='store_true')
 parser.add_argument('-w','--week', help='Search for a week',action='store_true')
+parser.add_argument('-r','--refeicao', help='Search for a meal')
 
 args = parser.parse_args()
 
@@ -157,6 +158,17 @@ if args.all and args.day:
     p = PdfReader()
     p.downloadMenu('FGA')
     p.genJson(args.day)
+elif args.all and args.day and args.refeicao:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    if args.refeicao == 'Desjejum':
+        p.genMealJson(args.day)
+    elif args.refeicao == 'Almoco':
+        p.genMealJson(args.day)
+    elif args.refeicao == 'Jantar':
+        p.genMealJson(args.day)
 elif args.all and args.week:
     crawl = TheCrawler()
     crawl.runCrawler()
@@ -182,4 +194,3 @@ else:
     p = PdfReader()
     p.downloadMenu('FGA')
     p = PdfReader()
-    p.genMealJson('Monday')
