@@ -73,6 +73,35 @@ class PdfReader():
         q = self.genQuerry(df)
         return(q[day])
 
+    def getWeekMenu(self, fileName):
+        df = pd.read_table(
+            f'{OUTPUT_PATH}{fileName}.tsv',
+            sep='\t',
+            na_filter=False,
+            header=1,
+            skipfooter=3,
+            dayfirst=True,
+            parse_dates=True,
+            engine='python')
+        q = self.genQuerry(df)
+
+        week = [('Monday','Segunda'),('Tuesday','Terça'),('Wednesday','Quarta'),('Thursday','Quinta'),('Friday','Sexta')]
+        obj = {}
+        obj['Segunda'] = {}
+        obj['Terça'] = {}
+        obj['Quarta'] = {}
+        obj['Quinta'] = {}
+        obj['Sexta'] = {}
+
+        for i,j in week:
+            obj[j] = self.genJson(i)
+        pprint(obj)
+        f = open('weekMenu.json','w')
+        f.write(json.dumps(obj, indent=4, ensure_ascii=False))
+        f.close()
+        
+        return obj
+
     def genJson(self, day):
         leg = self.getDayMenu('FGA0','legenda')
         data = self.getDayMenu('FGA0', day)
@@ -99,6 +128,7 @@ class PdfReader():
         f = open('menu.json','w')
         f.write(json.dumps(obj, indent=4, ensure_ascii=False))
         f.close()
+        return obj 
 
 parser = argparse.ArgumentParser("Scraper")
 parser.add_argument('-d','--day', help='Search for a specific week day')
@@ -129,5 +159,5 @@ else:
     p = PdfReader()
     p.downloadMenu('FGA')
     p = PdfReader()
-    p.genJson('segunda')
+    p.getWeekMenu('FGA0')
 
