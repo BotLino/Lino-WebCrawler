@@ -73,6 +73,48 @@ class PdfReader():
         q = self.genQuerry(df)
         return(q[day])
 
+    def getWeekMenu(self, fileName):
+        df = pd.read_table(
+            f'{OUTPUT_PATH}{fileName}.tsv',
+            sep='\t',
+            na_filter=False,
+            header=1,
+            skipfooter=3,
+            dayfirst=True,
+            parse_dates=True,
+            engine='python')
+        q = self.genQuerry(df)
+
+        week = [('Monday','Segunda'),('Tuesday','Terça'),('Wednesday','Quarta'),('Thursday','Quinta'),('Friday','Sexta')]
+        obj = {}
+        obj['Segunda'] = {}
+        obj['Terça'] = {}
+        obj['Quarta'] = {}
+        obj['Quinta'] = {}
+        obj['Sexta'] = {}
+
+        for i,j in week:
+            obj[j] = self.genJson(i)
+        pprint(obj)
+        f = open('weekMenu.json','w')
+        f.write(json.dumps(obj, indent=4, ensure_ascii=False))
+        f.close()
+        
+        return obj
+
+    def genMealJson(self, day):
+        
+        obj = self.genJson(day)
+        f = open('desjejumMenu.json','w')
+        f.write(json.dumps(obj['DESJEJUM'], indent=4, ensure_ascii=False))
+        f.close()
+        f = open('almocoMenu.json','w')
+        f.write(json.dumps(obj['ALMOÇO'], indent=4, ensure_ascii=False))
+        f.close()
+        f = open('jantarMenu.json','w')
+        f.write(json.dumps(obj['JANTAR'], indent=4, ensure_ascii=False))
+        f.close()
+
     def genJson(self, day):
         leg = self.getDayMenu('FGA0','legenda')
         data = self.getDayMenu('FGA0', day)
@@ -99,11 +141,14 @@ class PdfReader():
         f = open('menu.json','w')
         f.write(json.dumps(obj, indent=4, ensure_ascii=False))
         f.close()
+        return obj 
 
 parser = argparse.ArgumentParser("Scraper")
 parser.add_argument('-d','--day', help='Search for a specific week day')
 parser.add_argument('-s','--save', help='Download the files and generates new result.json')
 parser.add_argument('-a','--all', help='Run the complete pipeline (Requires -d value)', action='store_true')
+parser.add_argument('-w','--week', help='Search for a week',action='store_true')
+parser.add_argument('-r','--refeicao', help='Search for a meal')
 
 args = parser.parse_args()
 
@@ -113,6 +158,23 @@ if args.all and args.day:
     p = PdfReader()
     p.downloadMenu('FGA')
     p.genJson(args.day)
+elif args.all and args.day and args.refeicao:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    if args.refeicao == 'Desjejum':
+        p.genMealJson(args.day)
+    elif args.refeicao == 'Almoco':
+        p.genMealJson(args.day)
+    elif args.refeicao == 'Jantar':
+        p.genMealJson(args.day)
+elif args.all and args.week:
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    p.getWeekMenu('FGA0')
 elif args.all:
     raise ValueError('-a must have -d value')
 elif args.day:
@@ -123,6 +185,9 @@ elif args.save:
     crawl.runCrawler()
     p = PdfReader()
     p.downloadMenu('FGA')
+elif args.week:
+    p = PdfReader()
+    p.getWeekMenu('FGA0')
 else:
     crawl = TheCrawler()
     crawl.runCrawler()
@@ -130,4 +195,3 @@ else:
     p.downloadMenu('FGA')
     p = PdfReader()
     p.genJson('Monday')
-
