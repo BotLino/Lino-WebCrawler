@@ -6,6 +6,7 @@ from flask import Flask, jsonify, redirect, url_for
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
+
 @app.route('/')
 def hello():
     return """
@@ -18,6 +19,7 @@ def hello():
 #     result = json.load(f)
 #     print(result)
 #     return jsonify(result)
+
 
 @app.route('/cardapio/download')
 def get_today_menu():
