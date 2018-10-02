@@ -3,8 +3,8 @@ import json
 import os
 import argparse
 import pandas as pd
-import pprint
 import re
+from pprint import pprint
 from datetime import datetime
 from tabula import convert_into
 from scrapy.crawler import CrawlerProcess
@@ -116,18 +116,21 @@ class PdfReader():
 
         return obj
 
-    def genMealJson(self, day):
+    def genMealJson(self, day, meal):
 
         obj = self.genJson(day)
-        f = open('desjejumMenu.json', 'w')
-        f.write(json.dumps(obj['DESJEJUM'], indent=4, ensure_ascii=False))
-        f.close()
-        f = open('almocoMenu.json', 'w')
-        f.write(json.dumps(obj['ALMOÇO'], indent=4, ensure_ascii=False))
-        f.close()
-        f = open('jantarMenu.json', 'w')
-        f.write(json.dumps(obj['JANTAR'], indent=4, ensure_ascii=False))
-        f.close()
+        if meal == 'Desjejum':
+            f = open('desjejumMenu.json', 'w')
+            f.write(json.dumps(obj['DESJEJUM'], indent=4, ensure_ascii=False))
+            f.close()
+        elif meal == 'Almoco':
+            f = open('almocoMenu.json', 'w')
+            f.write(json.dumps(obj['ALMOÇO'], indent=4, ensure_ascii=False))
+            f.close()
+        elif meal == 'Jantar':
+            f = open('jantarMenu.json', 'w')
+            f.write(json.dumps(obj['JANTAR'], indent=4, ensure_ascii=False))
+            f.close()
 
     def genJson(self, day):
         leg = self.getDayMenu('FGA0', 'legenda')
@@ -185,17 +188,26 @@ elif args.all and args.day and args.refeicao:
     p = PdfReader()
     p.downloadMenu('FGA')
     if args.refeicao == 'Desjejum':
-        p.genMealJson(args.day)
+        p.genMealJson(args.day, args.refeicao)
     elif args.refeicao == 'Almoco':
-        p.genMealJson(args.day)
+        p.genMealJson(args.day, args.refeicao)
     elif args.refeicao == 'Jantar':
-        p.genMealJson(args.day)
+        p.genMealJson(args.day, args.refeicao)
 elif args.all and args.week:
     crawl = TheCrawler()
     crawl.runCrawler()
     p = PdfReader()
     p.downloadMenu('FGA')
     p.getWeekMenu('FGA0')
+elif args.day and args.refeicao:
+    p = PdfReader()
+    p.downloadMenu('FGA')
+    if args.refeicao == 'Desjejum':
+        p.genMealJson(args.day, args.refeicao)
+    elif args.refeicao == 'Almoco':
+        p.genMealJson(args.day, args.refeicao)
+    elif args.refeicao == 'Jantar':
+        p.genMealJson(args.day, args.refeicao)
 elif args.all:
     raise ValueError('-a must have -d value')
 elif args.day:
