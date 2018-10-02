@@ -1,10 +1,8 @@
-import scrapy
 import pdfx
 import json
 import os
 import argparse
 import pandas as pd
-from pprint import pprint
 from tabula import convert_into
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
@@ -12,23 +10,26 @@ from scrapy.utils.project import get_project_settings
 DOWNLOAD_PATH = './downloads/'
 OUTPUT_PATH = './outputs/'
 
+
 class TheCrawler():
     def __init__(self):
         self.process = CrawlerProcess(get_project_settings())
 
     def runCrawler(self):
         self.process.crawl('RU')
-        self.process.start()  # the script will block here until the crawling is finished
+        self.process.start()
+
 
 class JsonReader():
     def __init__(self):
         with open('result.json') as f:
             self.body = json.load(f)
 
+
 class PdfReader():
     def __init__(self):
         self.data = JsonReader()
-    
+
     def downloadMenu(self, campus):
         data = self.data
         n = 0
@@ -74,7 +75,7 @@ class PdfReader():
         return(q[day])
 
     def genJson(self, day):
-        leg = self.getDayMenu('FGA0','legenda')
+        leg = self.getDayMenu('FGA0', 'legenda')
         data = self.getDayMenu('FGA0', day)
         rows = list(data.index.values)
         obj = {}
@@ -96,14 +97,19 @@ class PdfReader():
                 obj[flag][leg[item]] = data[item]
             else:
                 obj[flag][leg[item]] = data[item]
-        f = open('menu.json','w')
+        f = open('menu.json', 'w')
         f.write(json.dumps(obj, indent=4, ensure_ascii=False))
         f.close()
 
+
 parser = argparse.ArgumentParser("Scraper")
-parser.add_argument('-d','--day', help='Search for a specific week day')
-parser.add_argument('-s','--save', help='Download the files and generates new result.json')
-parser.add_argument('-a','--all', help='Run the complete pipeline (Requires -d value)', action='store_true')
+parser.add_argument('-d', '--day', help='Search for a specific week day')
+parser.add_argument(
+    '-s', '--save', help='Download the files and generates new result.json')
+parser.add_argument(
+    '-a', '--all',
+    help='Run the complete pipeline (Requires -d value)',
+    action='store_true')
 
 args = parser.parse_args()
 
@@ -130,4 +136,3 @@ else:
     p.downloadMenu('FGA')
     p = PdfReader()
     p.genJson('Monday')
-
