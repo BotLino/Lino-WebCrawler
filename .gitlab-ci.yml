@@ -33,7 +33,7 @@ deploy_production:
   stage: deploy
   script:
     - "upgrade
-            --service lino-webcrawler
+            --service webcrawler-lino
             --environment $RANCHER_ENVIRONMENT
             --stack $RANCHER_STACK
             --rancher-key $RANCHER_ACCESS_KEY
