@@ -79,7 +79,10 @@ class PdfReader():
                     if today >= _day:
                         n += 1
 
-        fileName = 'FGA' + str(n-1)
+        if n > 0:
+            fileName = 'FGA' + str(n-1)
+        else:
+            fileName = 'FGA0'
         df = pd.read_table(
             f'{OUTPUT_PATH}{fileName}.tsv',
             sep='\t',
