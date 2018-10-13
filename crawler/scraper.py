@@ -95,13 +95,32 @@ class PdfReader():
             fileName = DEFAULT_FILE_NAME
         return fileName
 
+    def checkIsUpdated(self, filePath):
+        """
+        Checks if the file was updated today.
+        """
+        already_exists = os.path.isfile(filePath)
+        if already_exists:
+            lastModified = os.path.getmtime(filePath)
+            lastModified = datetime.fromtimestamp(
+                lastModified).strftime('%d-%m-%Y')
+            today = datetime.now().strftime('%d-%m-%Y')
+            return today == lastModified
+        else:
+            return False
+
     def getDayMenu(self, day):
         """
         Return the menu for an specified day.
         """
         fileName = self.getTodayFile()
+        filePath = OUTPUT_PATH + fileName + '.tsv'
+        if not self.checkIsUpdated(filePath):
+            crawler = TheCrawler()
+            crawler.runCrawler()
+            self.downloadMenu(DEFAULT_CAMPUS)
         sheet = pd.read_table(
-            f'{OUTPUT_PATH}{fileName}.tsv',
+            f'{filePath}',
             sep='\t',
             na_filter=False,
             header=1,

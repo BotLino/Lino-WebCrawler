@@ -1,9 +1,4 @@
-crawler/result.json
-crawler/menu.json
-crawler/almocoMenu.json
-crawler/jantarMenu.json
-crawler/desjejumMenu.json
-crawler/weekMenu.json
+crawler/*.json
 crawler/downloads
 __pycache__
 crawler/outputs
