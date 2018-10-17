@@ -11,9 +11,6 @@ test_flake8:
   stage: test
   script:
     - flake8
-  only:
-    - /master/
-    - /devel/
 
 build webcrawler:
   image: docker:latest
