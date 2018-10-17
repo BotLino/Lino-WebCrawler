@@ -151,7 +151,7 @@ class PdfReader():
         weekMeals['Sexta'] = {}
 
         for i, j in weekDays:
-            weekMeals[j] = self.genJson(i)
+            weekMeals[i] = self.genJson(i)
         f = open('weekMenu.json', 'w')
         f.write(json.dumps(weekMeals, indent=4, ensure_ascii=False))
         f.close()
@@ -187,6 +187,7 @@ class PdfReader():
         menu['ALMOÇO'] = {}
         menu['JANTAR'] = {}
         for item in rows:
+            leg[item] = leg[item].replace('.', '')
             if leg[item] == 'DESJEJUM':
                 flag = leg[item]
                 continue

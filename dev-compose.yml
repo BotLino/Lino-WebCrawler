@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  mongo-menu:
+    image: mongo:latest
+    ports:
+      - 27008:27008
+    volumes:
+      - /l/crawler/menu_db:/data/db
+    command: mongod --port 27008
