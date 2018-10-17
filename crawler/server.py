@@ -1,10 +1,16 @@
 import json
 import os
 import subprocess
+from pymongo import MongoClient
+from datetime import datetime
 from flask import Flask, jsonify, redirect, url_for
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
+
+client = MongoClient('localhost', 27008)
+db = client.ru
+collection = db.menu
 
 
 @app.route('/')
@@ -20,19 +26,19 @@ def get_today_menu():
     return redirect(url_for('hello'))
 
 
+@app.route('/cardapio/update')
+def populate_database():
+    subprocess.check_output(['python', 'scraper.py', '-a', '-w'])
+    subprocess.check_output(['python', 'populate.py'])
+    return redirect(url_for('hello'))
+
+
 @app.route('/cardapio/week')
 def weekMenu():
-    already_exists = os.path.isfile('./weekMenu.json')
-    if already_exists:
-        subprocess.check_output(['python', 'scraper.py', '-w'])
-        f = open('weekMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
-    else:
-        subprocess.check_output(['python', 'scraper.py', '-a', '-w'])
-        f = open('weekMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
+    today = datetime.today().strftime('%d/%m/%Y')
+    cursor = collection.find({'dates': today})
+    for record in cursor:
+        return jsonify(record['menu'])
 
 
 @app.route('/cardapio/<day>')

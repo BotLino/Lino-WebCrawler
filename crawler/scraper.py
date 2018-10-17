@@ -144,11 +144,11 @@ class PdfReader():
             ('Friday', 'Sexta')
         ]
         weekMeals = {}
-        weekMeals['Segunda'] = {}
-        weekMeals['Terça'] = {}
-        weekMeals['Quarta'] = {}
-        weekMeals['Quinta'] = {}
-        weekMeals['Sexta'] = {}
+        weekMeals['Monday'] = {}
+        weekMeals['Tuesday'] = {}
+        weekMeals['Wednesday'] = {}
+        weekMeals['Thursday'] = {}
+        weekMeals['Friday'] = {}
 
         for i, j in weekDays:
             weekMeals[i] = self.genJson(i)
