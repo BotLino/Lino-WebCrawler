@@ -1,10 +1,18 @@
 version: '3'
 
 services:
-  mongo-menu:
+  mongo-ru:
     image: mongo:latest
     ports:
-      - 27008:27008
+      - 27017:27017
     volumes:
       - /l/crawler/menu_db:/data/db
-    command: mongod --port 27008
+  
+  server-crawler:
+    build: .
+    ports:
+      - 5000:5000
+    volumes:
+      - .:/Lino-WebCrawler
+    depends_on:
+      - mongo-ru

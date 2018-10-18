@@ -6,7 +6,7 @@ from flask import Flask, jsonify, redirect, url_for
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
-client = MongoClient('localhost', 27008)
+client = MongoClient('mongodb://mongo-ru:27017/ru')
 db = client.ru
 collection = db.menu
 
@@ -25,15 +25,9 @@ def hello():
     """
 
 
-@app.route('/cardapio/download')
-def get_today_menu():
-    subprocess.check_output(['python', 'scraper.py'])
-    return redirect(url_for('hello'))
-
-
 @app.route('/cardapio/update')
 def populate_database():
-    subprocess.check_output(['python', 'scraper.py', '-a', '-w'])
+    subprocess.check_output(['python', 'scraper.py'])
     subprocess.check_output(['python', 'populate.py'])
     return redirect(url_for('hello'))
 

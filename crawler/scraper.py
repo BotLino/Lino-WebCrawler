@@ -1,7 +1,6 @@
 import pdfx
 import json
 import os
-import argparse
 import pandas as pd
 import re
 from datetime import datetime
@@ -55,7 +54,7 @@ class PdfReader():
                     f'{OUTPUT_PATH}{name}.tsv',
                     output_format='tsv')
 
-    def genQuerry(self, sheet):
+    def genQuery(self, sheet):
         """
         Get a Data Frame with the RU menu,
         and generates a query dictionary by merging related columns.
@@ -95,30 +94,12 @@ class PdfReader():
             fileName = DEFAULT_FILE_NAME
         return fileName
 
-    def checkIsUpdated(self, filePath):
-        """
-        Checks if the file was updated today.
-        """
-        already_exists = os.path.isfile(filePath)
-        if already_exists:
-            lastModified = os.path.getmtime(filePath)
-            lastModified = datetime.fromtimestamp(
-                lastModified).strftime('%d-%m-%Y')
-            today = datetime.now().strftime('%d-%m-%Y')
-            return today == lastModified
-        else:
-            return False
-
     def getDayMenu(self, day):
         """
         Return the menu for an specified day.
         """
         fileName = self.getTodayFile()
         filePath = OUTPUT_PATH + fileName + '.tsv'
-        if not self.checkIsUpdated(filePath):
-            crawler = TheCrawler()
-            crawler.runCrawler()
-            self.downloadMenu(DEFAULT_CAMPUS)
         sheet = pd.read_table(
             f'{filePath}',
             sep='\t',
@@ -128,7 +109,7 @@ class PdfReader():
             dayfirst=True,
             parse_dates=True,
             engine='python')
-        query = self.genQuerry(sheet)
+        query = self.genQuery(sheet)
         return(query[day])
 
     def getWeekMenu(self):
@@ -136,13 +117,6 @@ class PdfReader():
         Generate a json file with all the week meals.
         And returns the week meals.
         """
-        weekDays = [
-            ('Monday', 'Segunda'),
-            ('Tuesday', 'Terça'),
-            ('Wednesday', 'Quarta'),
-            ('Thursday', 'Quinta'),
-            ('Friday', 'Sexta')
-        ]
         weekMeals = {}
         weekMeals['Monday'] = {}
         weekMeals['Tuesday'] = {}
@@ -150,30 +124,12 @@ class PdfReader():
         weekMeals['Thursday'] = {}
         weekMeals['Friday'] = {}
 
-        for i, j in weekDays:
+        for i in weekMeals:
             weekMeals[i] = self.genJson(i)
         f = open('weekMenu.json', 'w')
         f.write(json.dumps(weekMeals, indent=4, ensure_ascii=False))
         f.close()
         return weekMeals
-
-    def genMealJson(self, day, meal):
-        """
-        Generate a json file with a specified meal and return it.
-        """
-        menu = self.genJson(day)
-        if meal == 'Desjejum':
-            f = open('desjejumMenu.json', 'w')
-            f.write(json.dumps(menu['DESJEJUM'], indent=4, ensure_ascii=False))
-            f.close()
-        elif meal == 'Almoco':
-            f = open('almocoMenu.json', 'w')
-            f.write(json.dumps(menu['ALMOÇO'], indent=4, ensure_ascii=False))
-            f.close()
-        elif meal == 'Jantar':
-            f = open('jantarMenu.json', 'w')
-            f.write(json.dumps(menu['JANTAR'], indent=4, ensure_ascii=False))
-            f.close()
 
     def genJson(self, day):
         """
@@ -202,76 +158,11 @@ class PdfReader():
                 menu[flag][leg[item]] = data[item]
             else:
                 menu[flag][leg[item]] = data[item]
-        f = open('menu.json', 'w')
-        f.write(json.dumps(menu, indent=4, ensure_ascii=False))
-        f.close()
         return menu
 
 
-parser = argparse.ArgumentParser("Scraper")
-
-parser.add_argument('-d', '--day', help='Search for a specific week day')
-parser.add_argument(
-    '-s', '--save', help='Download the files and generates new result.json')
-parser.add_argument(
-    '-a', '--all',
-    help='Run the complete pipeline (Requires -d value)',
-    action='store_true')
-parser.add_argument(
-    '-w', '--week', help='Search for a week', action='store_true')
-parser.add_argument('-r', '--refeicao', help='Search for a meal')
-
-args = parser.parse_args()
-
-if args.all and args.day:
-    crawl = TheCrawler()
-    crawl.runCrawler()
-    p = PdfReader()
-    p.downloadMenu(DEFAULT_CAMPUS)
-    p.genJson(args.day)
-elif args.all and args.day and args.refeicao:
-    crawl = TheCrawler()
-    crawl.runCrawler()
-    p = PdfReader()
-    p.downloadMenu(DEFAULT_CAMPUS)
-    if args.refeicao == 'Desjejum':
-        p.genMealJson(args.day, args.refeicao)
-    elif args.refeicao == 'Almoco':
-        p.genMealJson(args.day, args.refeicao)
-    elif args.refeicao == 'Jantar':
-        p.genMealJson(args.day, args.refeicao)
-elif args.all and args.week:
-    crawl = TheCrawler()
-    crawl.runCrawler()
-    p = PdfReader()
-    p.downloadMenu(DEFAULT_CAMPUS)
-    p.getWeekMenu()
-elif args.day and args.refeicao:
-    p = PdfReader()
-    p.downloadMenu(DEFAULT_CAMPUS)
-    if args.refeicao == 'Desjejum':
-        p.genMealJson(args.day, args.refeicao)
-    elif args.refeicao == 'Almoco':
-        p.genMealJson(args.day, args.refeicao)
-    elif args.refeicao == 'Jantar':
-        p.genMealJson(args.day, args.refeicao)
-elif args.all:
-    raise ValueError('-a flag must have -d value')
-elif args.day:
-    p = PdfReader()
-    p.genJson(args.day)
-elif args.save:
-    crawl = TheCrawler()
-    crawl.runCrawler()
-    p = PdfReader()
-    p.downloadMenu(DEFAULT_CAMPUS)
-elif args.week:
-    p = PdfReader()
-    p.getWeekMenu()
-else:
-    crawl = TheCrawler()
-    crawl.runCrawler()
-    p = PdfReader()
-    p.downloadMenu(DEFAULT_CAMPUS)
-    p = PdfReader()
-    p.genJson('Monday')
+crawl = TheCrawler()
+crawl.runCrawler()
+p = PdfReader()
+p.downloadMenu(DEFAULT_CAMPUS)
+p.getWeekMenu()
