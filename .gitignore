@@ -1,7 +1,7 @@
-crawler/result.json
-crawler/menu.json
+crawler/*.json
 crawler/downloads
 __pycache__
 crawler/outputs
 .env
 .vscode
+.pytest_cache
