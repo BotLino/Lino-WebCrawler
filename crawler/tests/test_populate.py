@@ -1,82 +1,23 @@
 import json
 import pytest
+import mongomock
+from datetime import datetime
+from pymongo import MongoClient
 from freezegun import freeze_time
-from crawler.populate import getDateRange, genDatesList, genWeekMenuObj
-
-JSON_RESULT_CONTENT = [
-    {
-        "text": "DARCY de 15/10/2018 a 21/10/2018"
-    },
-    {
-        "text": "FCE, FGA e FUP de 15/10/2018 a 21/10/2018"
-    },
-    {
-        "text": "FAL de 15/10/2018 a 19/10/2018"
-    }
-]
-
-CORRUPTED_JSON = """
-    [
-        {
-            "text": "DARCY de 15/10/2018 a 21/10/2018"
-        },
-        {
-            "text": "FCE, FGA e FUP de 15/10/2018 a 21/10/2018"
-        },
-        {
-            "text": "FAL de 15/10/2018 a 19/10/2018"
-        },
-        {
-            text: wrong text
-        }
-"""
-
-JSON_WEEK_MENU = {
-    "Monday": {
-        "DESJEJUM": {
-            "Bebidas quentes": "Leite e café",
-            "Vegetariano": "Creme vegetal",
-            "Achocolatado": "Achocolatado sem leite",
-            "Pão": "Pão francês",
-            "Complemento": "Carne moída",
-            "Comp Vegetariano": "Patê funcional",
-            "Fruta": "Melancia"
-        },
-        "ALMOÇO": {
-            "Salada:": "Rúcula (somente FCE) Agrião e tomate",
-            "Molho:": "Molho de laranja",
-            "Prato Principal:": "Frango caramelizado",
-            "Guarnição:": "Brócolis, milho e cenoura",
-            "Prato Vegetariano:": "Soja em grão com couve flor",
-            "Acompanhamentos:": "Arroz branco, Arroz integral e Feijão preto",
-            "Sobremesa:": "Maçã",
-            "Refresco:": "Limão"
-        },
-        "JANTAR": {
-            "Salada:": "Alface lisa e picles",
-            "Molho:": "Molho de manjericão",
-            "Sopa:": "Creme de batata doce",
-            "Pão:": "Torrada",
-            "Prato Principal:": "Bife acebolado",
-            "Prato Vegetariano:": "Curry de lentinha com leite de coco",
-            "Acompanhamentos:": "Arroz branco, Arroz integral e Feijão preto",
-            "Sobremesa:": "Laranja",
-            "Refresco:": "Uva"
-        }
-    },
-}
+from populate import getDateRange, genDatesList,\
+    genWeekMenuObj, saveMenu
 
 
 class TestPopulate():
 
     @freeze_time('2018-10-19')
-    def test_get_date_range(self, tmpdir):
+    def test_get_date_range(self, tmpdir, json_result_content):
         """
         Tests if method gets correct date range from file.
         """
         tmp_file = tmpdir.mkdir("sub").join("test_result.json")
         tmp_json = json.dumps(
-            JSON_RESULT_CONTENT,
+            json_result_content,
             indent=4,
             ensure_ascii=False)
         tmp_file.write(tmp_json)
@@ -84,13 +25,13 @@ class TestPopulate():
         correct_dates = ['15/10/2018', '21/10/2018']
         assert dates == correct_dates
 
-    def test_error_get_date_range(self, tmpdir):
+    def test_error_get_date_range(self, tmpdir, corrupted_json):
         """
         Tests if method raises exception with corrupted json.
         """
         tmp_file = tmpdir.mkdir("sub").join("test_result.txt")
         tmp_json = json.dumps(
-            CORRUPTED_JSON,
+            corrupted_json,
             indent=4,
             ensure_ascii=False)
         tmp_file.write(tmp_json)
@@ -121,8 +62,37 @@ class TestPopulate():
         with pytest.raises(ValueError):
             genDatesList('151/02/018', '211/02/018')
 
-    def test_gen_week_obj(self):
+    def test_gen_week_obj(self, json_week_menu):
+        """
+        Tests if method generates the object with required fields.
+        """
         dates = genDatesList('15/10/2018', '21/10/2018')
-        weekMenu = genWeekMenuObj(dates, JSON_WEEK_MENU)
+        weekMenu = genWeekMenuObj(dates, json_week_menu)
         assert 'menu' in weekMenu
         assert 'dates' in weekMenu
+
+    @freeze_time('2018-10-19')
+    @mongomock.patch(servers='localhost', on_new='error')
+    def test_save_menu(self, tmpdir, json_week_menu, json_result_content):
+        client = MongoClient('localhost')
+        collection = client.ru.menu
+        tmp_file = tmpdir.join('test_weekMenu.json')
+        tmp_json = json.dumps(
+            json_week_menu,
+            indent=4,
+            ensure_ascii=False)
+        tmp_file.write(tmp_json)
+        dates_path = tmpdir.join('result.json')
+        tmp_dates = json.dumps(
+            json_result_content,
+            indent=4,
+            ensure_ascii=False)
+        dates_path.write(tmp_dates)
+        dates = genDatesList('15/10/2018', '21/10/2018')
+        weekObj = genWeekMenuObj(dates, json_week_menu)
+        saveMenu(tmp_file, dates_path)
+        today = datetime.today().strftime('%d/%m/%Y')
+        cursor = collection.find({'dates': today}, {'_id': 0})
+        print(cursor)
+        for document in cursor:
+            assert document == weekObj

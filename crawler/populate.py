@@ -1,9 +1,11 @@
 import datetime
 import re
 import json
+import os
 from pymongo import MongoClient
 
-client = MongoClient('mongodb://mongo-ru:27017/ru')
+DB_URI = os.getenv('DB_URI', 'localhost')
+client = MongoClient(DB_URI)
 db = client.ru
 collection = db.menu
 
@@ -52,13 +54,13 @@ def genWeekMenuObj(dateList, weekMenu):
     return weekObj
 
 
-def saveMenu(filePath):
+def saveMenu(filePath, datesPath='result.json'):
     """
     Saves the content of filePath to the database.
     """
     f = open(filePath, 'r')
     weekMeals = json.load(f)
-    dates = getDateRange('result.json')
+    dates = getDateRange(datesPath)
     dates = genDatesList(*dates)
     obj = genWeekMenuObj(dates, weekMeals)
     collection.replace_one({'dates': dates}, obj, upsert=True)

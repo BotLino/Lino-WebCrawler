@@ -9,6 +9,8 @@ services:
       - .:/Lino-WebCrawler
     depends_on:
       - mongo-ru
+    environment:
+      - DB_URI=mongodb://mongo-ru:27017/ru
 
   mongo-ru:
     image: mongo:latest
