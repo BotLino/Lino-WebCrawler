@@ -7,15 +7,12 @@ client = MongoClient('mongodb://mongo-ru:27017/ru')
 db = client.ru
 collection = db.menu
 
-f = open('weekMenu.json', 'r')
-weekMeals = json.load(f)
 
-
-def getDateRange():
+def getDateRange(filePath):
     """
     Returns the start and end date for a given menu.
     """
-    with open('result.json') as f:
+    with open(filePath) as f:
         menuList = json.load(f)
         today = datetime.datetime.now()
         regex = re.compile(r'(?P<date>\d{2}/\d{2}/\d{4})')
@@ -55,7 +52,10 @@ def genWeekMenuObj(dateList, weekMenu):
     return weekObj
 
 
-dates = getDateRange()
-dates = genDatesList(*dates)
-obj = genWeekMenuObj(dates, weekMeals)
-collection.replace_one({'dates': dates}, obj, upsert=True)
+def saveMenu():
+    f = open('weekMenu.json', 'r')
+    weekMeals = json.load(f)
+    dates = getDateRange('result.json')
+    dates = genDatesList(*dates)
+    obj = genWeekMenuObj(dates, weekMeals)
+    collection.replace_one({'dates': dates}, obj, upsert=True)

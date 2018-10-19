@@ -1,4 +1,5 @@
 import subprocess
+from populate import saveMenu
 from pymongo import MongoClient
 from datetime import datetime
 from flask import Flask, jsonify, redirect, url_for
@@ -28,7 +29,7 @@ def hello():
 @app.route('/cardapio/update')
 def populate_database():
     subprocess.check_output(['python', 'scraper.py'])
-    subprocess.check_output(['python', 'populate.py'])
+    saveMenu()
     return redirect(url_for('hello'))
 
 
