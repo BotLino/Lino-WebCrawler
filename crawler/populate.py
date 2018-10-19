@@ -52,8 +52,11 @@ def genWeekMenuObj(dateList, weekMenu):
     return weekObj
 
 
-def saveMenu():
-    f = open('weekMenu.json', 'r')
+def saveMenu(filePath):
+    """
+    Saves the content of filePath to the database.
+    """
+    f = open(filePath, 'r')
     weekMeals = json.load(f)
     dates = getDateRange('result.json')
     dates = genDatesList(*dates)

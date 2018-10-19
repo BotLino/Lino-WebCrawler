@@ -1,6 +1,6 @@
 import json
 import pytest
-from crawler.populate import getDateRange
+from crawler.populate import getDateRange, genDatesList
 
 JSON_RESULT_CONTENT = [
     {
@@ -59,3 +59,28 @@ class TestPopulate():
         tmp_file.write(tmp_json)
         with pytest.raises(TypeError):
             getDateRange(tmp_file)
+
+    def test_gen_dates_list(self):
+        """
+        Tests if method generates a correct list of dates.
+        """
+        dates = genDatesList('15/10/2018', '21/10/2018')
+        correct_dates = ['15/10/2018', '16/10/2018',
+                         '17/10/2018', '18/10/2018',
+                         '19/10/2018', '20/10/2018', '21/10/2018']
+        assert dates == correct_dates
+
+    def test_bad_range_gen_dates_list(self):
+        """
+        Test if method returns empty list on bad range parameters.
+        """
+        dates = genDatesList('21/10/2018', '01/10/2018')
+        assert dates == []
+
+    def test_malformed_dates(self):
+        """
+        Tests if method raises exception on malformed date parameters
+        """
+        with pytest.raises(ValueError):
+            genDatesList('151/02/018', '211/02/018')
+
