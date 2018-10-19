@@ -1,6 +1,7 @@
 import json
 import pytest
-from crawler.populate import getDateRange, genDatesList
+from freezegun import freeze_time
+from crawler.populate import getDateRange, genDatesList, genWeekMenuObj
 
 JSON_RESULT_CONTENT = [
     {
@@ -30,9 +31,45 @@ CORRUPTED_JSON = """
         }
 """
 
+JSON_WEEK_MENU = {
+    "Monday": {
+        "DESJEJUM": {
+            "Bebidas quentes": "Leite e café",
+            "Vegetariano": "Creme vegetal",
+            "Achocolatado": "Achocolatado sem leite",
+            "Pão": "Pão francês",
+            "Complemento": "Carne moída",
+            "Comp Vegetariano": "Patê funcional",
+            "Fruta": "Melancia"
+        },
+        "ALMOÇO": {
+            "Salada:": "Rúcula (somente FCE) Agrião e tomate",
+            "Molho:": "Molho de laranja",
+            "Prato Principal:": "Frango caramelizado",
+            "Guarnição:": "Brócolis, milho e cenoura",
+            "Prato Vegetariano:": "Soja em grão com couve flor",
+            "Acompanhamentos:": "Arroz branco, Arroz integral e Feijão preto",
+            "Sobremesa:": "Maçã",
+            "Refresco:": "Limão"
+        },
+        "JANTAR": {
+            "Salada:": "Alface lisa e picles",
+            "Molho:": "Molho de manjericão",
+            "Sopa:": "Creme de batata doce",
+            "Pão:": "Torrada",
+            "Prato Principal:": "Bife acebolado",
+            "Prato Vegetariano:": "Curry de lentinha com leite de coco",
+            "Acompanhamentos:": "Arroz branco, Arroz integral e Feijão preto",
+            "Sobremesa:": "Laranja",
+            "Refresco:": "Uva"
+        }
+    },
+}
+
 
 class TestPopulate():
 
+    @freeze_time('2018-10-19')
     def test_get_date_range(self, tmpdir):
         """
         Tests if method gets correct date range from file.
@@ -84,3 +121,8 @@ class TestPopulate():
         with pytest.raises(ValueError):
             genDatesList('151/02/018', '211/02/018')
 
+    def test_gen_week_obj(self):
+        dates = genDatesList('15/10/2018', '21/10/2018')
+        weekMenu = genWeekMenuObj(dates, JSON_WEEK_MENU)
+        assert 'menu' in weekMenu
+        assert 'dates' in weekMenu

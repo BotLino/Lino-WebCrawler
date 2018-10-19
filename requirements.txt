@@ -4,3 +4,4 @@ Scrapy==1.5.1
 Flask
 coverage
 pymongo
+freezegun
