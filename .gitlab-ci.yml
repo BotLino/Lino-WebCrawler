@@ -12,15 +12,20 @@ test_flake8:
   script:
     - flake8
 
+services:
+  - mongo:latest
+
 unit_test:
   image: python:3.6
   stage: test
-  services:
-    - mongo
   variables:
     DB_URI: 'mongodb://mongo/ru'
-  script:
+  before_script:
     - pip install -r requirements.txt
+    - apt-get update
+    - apt-get upgrade -y
+    - apt-get install default-jdk -y
+  script:
     - pytest
 
 build webcrawler:

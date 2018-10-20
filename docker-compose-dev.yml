@@ -11,7 +11,11 @@ services:
       - .:/Lino-WebCrawler
     depends_on:
       - mongo-ru
-    
+    environment:
+      - DB_URI=mongodb://mongo-ru/ru
+    tty: true
+    stdin_open: true
+
   mongo-ru:
     image: mongo:latest
     ports:

@@ -13,6 +13,16 @@ client = MongoClient(DB_URI)
 db = client.ru
 collection = db.menu
 
+valid_days = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+]
+
 
 def getMenu():
     today = datetime.today().strftime('%d/%m/%Y')
@@ -21,9 +31,14 @@ def getMenu():
         return record['menu']
 
 
+def isValidDay(day):
+    return day in valid_days
+
+
 @app.route('/cardapio/update')
 def populate_database():
-    subprocess.check_output(['python', 'scraper.py'])
+    subprocess.call('touch weekMenu.json', shell=True)
+    subprocess.check_output(['python', 'scraper.py'], shell=True)
     saveMenu('weekMenu.json')
     return jsonify({'status': 'Success', 'updated': True})
 
@@ -35,24 +50,32 @@ def weekMenu():
 
 @app.route('/cardapio/<day>')
 def menu_day(day):
+    if not isValidDay(day):
+        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
     menu = getMenu()
     return jsonify(menu[day])
 
 
 @app.route('/cardapio/<day>/Desjejum')
 def breakfastMenu(day):
+    if not isValidDay(day):
+        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
     menu = getMenu()
     return jsonify(menu[day]['DESJEJUM'])
 
 
 @app.route('/cardapio/<day>/Almoco')
 def lunchMenu(day):
+    if not isValidDay(day):
+        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
     menu = getMenu()
     return jsonify(menu[day]['ALMOÇO'])
 
 
 @app.route('/cardapio/<day>/Jantar')
 def dinnerMenu(day):
+    if not isValidDay(day):
+        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
     menu = getMenu()
     return jsonify(menu[day]['JANTAR'])
 
