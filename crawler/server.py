@@ -1,106 +1,82 @@
-import json
-import os
 import subprocess
-from flask import Flask, jsonify, redirect, url_for
+import os
+from populate import saveMenu
+from pymongo import MongoClient
+from datetime import datetime
+from flask import Flask, jsonify
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
+DB_URI = os.getenv('DB_URI', 'localhost')
+client = MongoClient(DB_URI)
+db = client.ru
+collection = db.menu
 
-@app.route('/')
-def hello():
-    return """
-        <h1>Go to /cardapio/[day] </h1>
-    """
+valid_days = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+]
 
 
-@app.route('/cardapio/download')
-def get_today_menu():
+def getMenu():
+    today = datetime.today().strftime('%d/%m/%Y')
+    cursor = collection.find({'dates': today})
+    for record in cursor:
+        return record['menu']
+
+
+def isValidDay(day):
+    return day in valid_days
+
+
+@app.route('/cardapio/update')
+def populate_database():
     subprocess.check_output(['python', 'scraper.py'])
-    return redirect(url_for('hello'))
+    saveMenu('weekMenu.json')
+    return jsonify({'status': 'Success', 'updated': True})
 
 
 @app.route('/cardapio/week')
 def weekMenu():
-    already_exists = os.path.isfile('./weekMenu.json')
-    if already_exists:
-        subprocess.check_output(['python', 'scraper.py', '-w'])
-        f = open('weekMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
-    else:
-        subprocess.check_output(['python', 'scraper.py', '-a', '-w'])
-        f = open('weekMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
+    return jsonify(getMenu())
 
 
 @app.route('/cardapio/<day>')
 def menu_day(day):
-    already_exists = os.path.isfile('./menu.json')
-    if already_exists:
-        subprocess.check_output(['python', 'scraper.py', '-d', day])
-        f = open('menu.json', 'r')
-        result = json.load(f)
-        print(day)
-        print(result)
-        return jsonify(result)
-    else:
-        subprocess.check_output(['python', 'scraper.py', '-a', '-d', day])
-        f = open('menu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
+    if not isValidDay(day):
+        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
+    menu = getMenu()
+    return jsonify(menu[day])
 
 
 @app.route('/cardapio/<day>/Desjejum')
 def breakfastMenu(day):
-    already_exists = os.path.isfile('./desjejumMenu.json')
-    if already_exists:
-        subprocess.check_output(
-            ['python', 'scraper.py', '-d', day, '-r', 'Desjejum'])
-        f = open('desjejumMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
-    else:
-        subprocess.check_output(
-            ['python', 'scraper.py', '-a', '-d', day, '-r', 'Desjejum'])
-        f = open('menu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
+    if not isValidDay(day):
+        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
+    menu = getMenu()
+    return jsonify(menu[day]['DESJEJUM'])
 
 
 @app.route('/cardapio/<day>/Almoco')
 def lunchMenu(day):
-    already_exists = os.path.isfile('./almocoMenu.json')
-    if already_exists:
-        subprocess.check_output(
-            ['python', 'scraper.py', '-d', day, '-r', 'Almoco'])
-        f = open('almocoMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
-    else:
-        subprocess.check_output(
-            ['python', 'scraper.py', '-a', '-d', day, '-r', 'Almoco'])
-        f = open('almocoMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
+    if not isValidDay(day):
+        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
+    menu = getMenu()
+    return jsonify(menu[day]['ALMOÇO'])
 
 
 @app.route('/cardapio/<day>/Jantar')
 def dinnerMenu(day):
-    already_exists = os.path.isfile('./jantarMenu.json')
-    if already_exists:
-        subprocess.check_output(
-            ['python', 'scraper.py', '-d', day, '-r', 'Jantar'])
-        f = open('jantarMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
-    else:
-        subprocess.check_output(
-            ['python', 'scraper.py', '-a', '-d', day, '-r', 'Jantar'])
-        f = open('jantarMenu.json', 'r')
-        result = json.load(f)
-        return jsonify(result)
+    if not isValidDay(day):
+        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
+    menu = getMenu()
+    return jsonify(menu[day]['JANTAR'])
 
 
 if __name__ == '__main__':

@@ -5,3 +5,4 @@ crawler/outputs
 .env
 .vscode
 .pytest_cache
+.coverage
