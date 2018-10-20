@@ -1,6 +1,15 @@
 version: '3'
 
 services:
+  cronjob:
+    build:
+      context: .
+      dockerfile: Cronjob.Dockerfile
+    volumes:
+      - ./outputs:/outputs
+    depends_on:
+      - server-crawler
+
   server-crawler:
     build: .
     ports:
@@ -11,6 +20,8 @@ services:
       - mongo-ru
     environment:
       - DB_URI=mongodb://mongo-ru:27017/ru
+    tty: true
+    stdin_open: true
 
   mongo-ru:
     image: mongo:latest
