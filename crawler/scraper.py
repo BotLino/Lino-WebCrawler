@@ -161,8 +161,13 @@ class PdfReader():
         return menu
 
 
-crawl = TheCrawler()
-crawl.runCrawler()
-p = PdfReader()
-p.downloadMenu(DEFAULT_CAMPUS)
-p.getWeekMenu()
+def runAll():
+    crawl = TheCrawler()
+    crawl.runCrawler()
+    p = PdfReader()
+    p.downloadMenu(DEFAULT_CAMPUS)
+    p.getWeekMenu()
+
+
+if __name__ == '__main__':
+    runAll()

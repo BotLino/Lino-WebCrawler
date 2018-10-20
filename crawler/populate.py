@@ -1,21 +1,20 @@
 import datetime
 import re
 import json
+import os
 from pymongo import MongoClient
 
-client = MongoClient('mongodb://mongo-ru:27017/ru')
+DB_URI = os.getenv('DB_URI', 'localhost')
+client = MongoClient(DB_URI)
 db = client.ru
 collection = db.menu
 
-f = open('weekMenu.json', 'r')
-weekMeals = json.load(f)
 
-
-def getDateRange():
+def getDateRange(filePath):
     """
     Returns the start and end date for a given menu.
     """
-    with open('result.json') as f:
+    with open(filePath) as f:
         menuList = json.load(f)
         today = datetime.datetime.now()
         regex = re.compile(r'(?P<date>\d{2}/\d{2}/\d{4})')
@@ -55,7 +54,13 @@ def genWeekMenuObj(dateList, weekMenu):
     return weekObj
 
 
-dates = getDateRange()
-dates = genDatesList(*dates)
-obj = genWeekMenuObj(dates, weekMeals)
-collection.replace_one({'dates': dates}, obj, upsert=True)
+def saveMenu(filePath, datesPath='result.json'):
+    """
+    Saves the content of filePath to the database.
+    """
+    f = open(filePath, 'r')
+    weekMeals = json.load(f)
+    dates = getDateRange(datesPath)
+    dates = genDatesList(*dates)
+    obj = genWeekMenuObj(dates, weekMeals)
+    collection.replace_one({'dates': dates}, obj, upsert=True)
