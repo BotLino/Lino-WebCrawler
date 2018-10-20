@@ -12,16 +12,6 @@ test_flake8:
   script:
     - flake8
 
-unit_test:
-  image: python:3.6
-  stage: test
-  services:
-    - mongo
-  script:
-    - export DB_URI=mongodb://mongo:27017/ru
-    - pip install -r requirements.txt
-    - pytest
-
 build webcrawler:
   image: docker:latest
   stage: build
