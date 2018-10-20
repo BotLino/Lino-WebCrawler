@@ -3,7 +3,7 @@ import os
 from populate import saveMenu
 from pymongo import MongoClient
 from datetime import datetime
-from flask import Flask, jsonify, redirect, url_for
+from flask import Flask, jsonify
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -21,18 +21,11 @@ def getMenu():
         return record['menu']
 
 
-@app.route('/')
-def hello():
-    return """
-        <h1>Go to /cardapio/[day] </h1>
-    """
-
-
 @app.route('/cardapio/update')
 def populate_database():
     subprocess.check_output(['python', 'scraper.py'])
     saveMenu('weekMenu.json')
-    return redirect(url_for('hello'))
+    return jsonify({'status': 'Success', 'updated': True})
 
 
 @app.route('/cardapio/week')
