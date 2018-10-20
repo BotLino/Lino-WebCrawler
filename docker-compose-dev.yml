@@ -2,16 +2,16 @@ version: '3'
 
 services:
   server-crawler:
-    build: .
+    build:
+      context: .
+      dockerfile: Test.Dockerfile
     ports:
       - 5000:5000
     volumes:
       - .:/Lino-WebCrawler
     depends_on:
       - mongo-ru
-    environment:
-      - DB_URI=mongodb://mongo-ru:27017/ru
-
+    
   mongo-ru:
     image: mongo:latest
     ports:

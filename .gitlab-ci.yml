@@ -17,8 +17,9 @@ unit_test:
   stage: test
   services:
     - mongo
+  variables:
+    DB_URI: 'mongodb://mongo/ru'
   script:
-    - export DB_URI=mongodb://mongo:27017/ru
     - pip install -r requirements.txt
     - pytest
 
