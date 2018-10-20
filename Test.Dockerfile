@@ -14,6 +14,4 @@ COPY . /Lino-WebCrawler
 
 WORKDIR /Lino-WebCrawler/crawler
 
-RUN apt-get update && apt-get install -y mongodb
-
-CMD ["python", "server.py"]
+CMD pytest

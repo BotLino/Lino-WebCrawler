@@ -1,11 +1,14 @@
 import json
 import pytest
+import os
 import mongomock
 from datetime import datetime
 from pymongo import MongoClient
 from freezegun import freeze_time
 from populate import getDateRange, genDatesList,\
     genWeekMenuObj, saveMenu
+
+DB_URI = os.getenv('DB_URI', "localhost")
 
 
 class TestPopulate():
@@ -72,9 +75,9 @@ class TestPopulate():
         assert 'dates' in weekMenu
 
     @freeze_time('2018-10-19')
-    @mongomock.patch(servers='localhost', on_new='error')
+    @mongomock.patch(servers=DB_URI, on_new='error')
     def test_save_menu(self, tmpdir, json_week_menu, json_result_content):
-        client = MongoClient('localhost')
+        client = MongoClient(DB_URI)
         collection = client.ru.menu
         tmp_file = tmpdir.join('test_weekMenu.json')
         tmp_json = json.dumps(
