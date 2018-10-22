@@ -25,6 +25,7 @@ unit_test:
     - apt-get update
     - apt-get upgrade -y
     - apt-get install default-jdk -y
+    - cd crawler
   script:
     - pytest
 

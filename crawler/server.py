@@ -38,7 +38,7 @@ def isValidDay(day):
 @app.route('/cardapio/update')
 def populate_database():
     subprocess.call('touch weekMenu.json', shell=True)
-    subprocess.check_output(['python', 'scraper.py'], shell=True)
+    subprocess.check_output(['python', 'scraper.py'])
     saveMenu('weekMenu.json')
     return jsonify({'status': 'Success', 'updated': True})
 

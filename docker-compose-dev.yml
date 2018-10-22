@@ -4,7 +4,7 @@ services:
   server-crawler:
     build:
       context: .
-      dockerfile: Test.Dockerfile
+      dockerfile: Dockerfile
     ports:
       - 5000:5000
     volumes:
