@@ -5,6 +5,11 @@ stages:
 
 variables:
   LINO_LATEST_IMAGE: $DOCKER_USER/webcrawler:latest
+  CRONJOB_LATEST_IMAGE: $DOCKER_USER/cronjob-webcrawler-ru:latest
+
+##############################################################################
+#                                 Test stage                                 #
+##############################################################################
 
 test_flake8:
   image: ejplatform/python:alpine
@@ -29,25 +34,63 @@ unit_test:
   script:
     - pytest
 
+
+##############################################################################
+#                                 Build stage                                #
+##############################################################################
+
 build webcrawler:
   image: docker:latest
   stage: build
   services:
     - docker:dind
+  before_script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
   script:
     - docker build -t $LINO_LATEST_IMAGE .
-    - docker login -u $DOCKER_USER -p $DOCKER_PASS
     - docker push $LINO_LATEST_IMAGE
   only:
     - /master/
   environment: production
 
-deploy_production:
+build cronjob:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+  script:
+    - docker build -t $CRONJOB_LATEST_IMAGE .
+    - docker push $CRONJOB_LATEST_IMAGE
+  only:
+    - /master/
+
+
+##############################################################################
+#                                 Deploy stage                               #
+##############################################################################
+
+deploy webcrawler production:
   image: cdrx/rancher-gitlab-deploy
   stage: deploy
   script:
     - "upgrade
             --service webcrawler-lino
+            --environment $RANCHER_ENVIRONMENT
+            --stack $RANCHER_STACK
+            --rancher-key $RANCHER_ACCESS_KEY
+            --rancher-secret $RANCHER_SECRET_KEY
+            --rancher-url $RANCHER_URL"
+  only:
+    - /master/
+
+deploy cronjob production:
+  image: cdrx/rancher-gitlab-deploy
+  stage: deploy
+  script:
+    - "upgrade
+            --service cronjob-webcrawler-ru
             --environment $RANCHER_ENVIRONMENT
             --stack $RANCHER_STACK
             --rancher-key $RANCHER_ACCESS_KEY
