@@ -1,1 +1,1 @@
-0 4 * * 1-5 curl "http://server-crawler:5000/cardapio/update" >> /outputs/out.log 2>&1
+0 4 * * 1-5 curl "http://webcrawler-ru.lappis.rocks/cardapio/update" >> /outputs/out.log 2>&1
