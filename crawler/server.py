@@ -1,5 +1,7 @@
 import subprocess
 import os
+import re
+import json
 from populate import saveMenu
 from pymongo import MongoClient
 from datetime import datetime
@@ -46,6 +48,35 @@ def populate_database():
 @app.route('/cardapio/week')
 def weekMenu():
     return jsonify(getMenu())
+
+
+@app.route('/cardapio/pdf')
+def getPdf(filePath='result.json'):
+    with open(filePath) as f:
+        menuList = json.load(f)
+        today = datetime.now()
+        regex = re.compile(r'(?P<date>\d{2}/\d{2})')
+        url = ''
+        for item in menuList:
+            # Adds validation in 'url' field
+            # to avoid errors due changes in links text
+            if 'FGA' in item['text'] or 'FGA' in item['path']:
+                _day = datetime.strptime(
+                    regex.findall(item['text'])[0],
+                    '%d/%m'
+                )
+                if today >= _day:
+                    url = item['url']
+    if url:
+        return jsonify({
+            'url': url,
+            'status': 'success'
+        })
+    else:
+        return jsonify({
+            'status': 'error',
+            'description': 'url not found'
+        }), 404
 
 
 @app.route('/cardapio/<day>')
