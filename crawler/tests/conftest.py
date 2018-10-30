@@ -20,15 +20,18 @@ def json_result_content():
     JSON_RESULT_CONTENT = [
         {
             "text": "DARCY de 15/10/2018 a 21/10/2018",
-            "path": "/images/Cardapio/outubrorefeitorio2018/DARCY-29-10-a-04-11.pdf"
+            "path": ("/images/Cardapio/outubrorefeitorio2018"
+                     "/DARCY-29-10-a-04-11.pdf")
         },
         {
             "text": "FCE, FGA e FUP de 15/10/2018 a 21/10/2018",
-            "path": "/images/Cardapio/outubrorefeitorio2018/FUPFGAFCE29-10-a-04-11.pdf"
+            "path": ("/images/Cardapio/outubrorefeitorio2018"
+                     "/FUPFGAFCE29-10-a-04-11.pdf")
         },
         {
             "text": "FAL de 15/10/2018 a 19/10/2018",
-            "path": "/images/Cardapio/outubrorefeitorio2018/FAL29-10-a-04-11.pdf"
+            "path": ("/images/Cardapio/outubrorefeitorio2018"
+                     "/FAL29-10-a-04-11.pdf")
         }
     ]
     return JSON_RESULT_CONTENT
