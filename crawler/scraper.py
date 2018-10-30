@@ -44,7 +44,7 @@ class PdfReader():
         for item in data.body:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
-            if campus in item['text'] or campus in item['url']:
+            if campus in item['text'] or campus in item['path']:
                 pdf = pdfx.PDFx(item['url'])
                 pdf.download_pdfs(DOWNLOAD_PATH)
                 name = campus + str(fileIndex)
