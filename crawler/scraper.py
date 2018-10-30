@@ -42,7 +42,9 @@ class PdfReader():
         if not os.path.exists(OUTPUT_PATH):
             os.mkdir(OUTPUT_PATH)
         for item in data.body:
-            if campus in item['text']:
+            # Adds validation in 'url' field
+            # to avoid errors due changes in links text
+            if campus in item['text'] or campus in item['path']:
                 pdf = pdfx.PDFx(item['url'])
                 pdf.download_pdfs(DOWNLOAD_PATH)
                 name = campus + str(fileIndex)
@@ -77,14 +79,16 @@ class PdfReader():
         """
         data = self.data
         today = datetime.now()
-        regex = re.compile(r'(?P<date>\d{2}/\d{2}/\d{4})')
+        regex = re.compile(r'(?P<date>\d{2}/\d{2})')
         fileIndex = 0
         if len(data.body) > 3:
             for item in data.body:
-                if 'FGA' in item['text']:
+                # Adds validation in 'url' field
+                # to avoid errors due changes in links text
+                if 'FGA' in item['text'] or 'FGA' in item['url']:
                     _day = datetime.strptime(
                         regex.findall(item['text'])[0],
-                        '%d/%m/%Y'
+                        '%d/%m'
                     )
                     if today >= _day:
                         fileIndex += 1
