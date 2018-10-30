@@ -17,16 +17,19 @@ def getDateRange(filePath):
     with open(filePath) as f:
         menuList = json.load(f)
         today = datetime.datetime.now()
-        regex = re.compile(r'(?P<date>\d{2}/\d{2}/\d{4})')
+        regex = re.compile(r'(?P<date>\d{2}/\d{2})')
         dateRange = []
         for item in menuList:
-            if 'FGA' in item['text']:
+            # Adds validation in 'url' field
+            # to avoid errors due changes in links text
+            if 'FGA' in item['text'] or 'FGA' in item['url']:
                 _day = datetime.datetime.strptime(
                     regex.findall(item['text'])[0],
-                    '%d/%m/%Y'
+                    '%d/%m'
                 )
                 if today >= _day:
                     dateRange = regex.findall(item['text'])
+        dateRange = [date + '/2018' for date in dateRange]
         return dateRange
 
 
@@ -64,3 +67,7 @@ def saveMenu(filePath, datesPath='result.json'):
     dates = genDatesList(*dates)
     obj = genWeekMenuObj(dates, weekMeals)
     collection.replace_one({'dates': dates}, obj, upsert=True)
+
+
+if __name__ == '__main__':
+    saveMenu('weekMenu.json')
