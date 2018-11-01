@@ -7,3 +7,4 @@ pymongo
 freezegun
 mongomock
 pytest
+pdf2image

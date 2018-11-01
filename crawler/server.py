@@ -5,7 +5,8 @@ import json
 from populate import saveMenu
 from pymongo import MongoClient
 from datetime import datetime
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_file
+from scraper import PdfReader
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -56,7 +57,7 @@ def getPdf(filePath='result.json'):
         menuList = json.load(f)
         today = datetime.now()
         regex = re.compile(r'(?P<date>\d{2}/\d{2})')
-        url = ''
+        pdf_name = ''
         for item in menuList:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
@@ -66,16 +67,18 @@ def getPdf(filePath='result.json'):
                     '%d/%m'
                 )
                 if today >= _day:
-                    url = item['url']
-    if url:
-        return jsonify({
-            'url': url,
-            'status': 'success'
-        })
+                    pdf_name = item['path'].split('/').pop()
+    if pdf_name:
+        pdf = PdfReader()
+        pdf_path = './downloads/' + pdf_name
+        os.mkdir('./static') if 'static' not in os.listdir('./') else None
+        pdf.genImage(pdf_path, './static/', 'pdfImage')
+        return send_file('./static/pdfImage.png')
+
     else:
         return jsonify({
             'status': 'error',
-            'description': 'url not found'
+            'description': 'pdf not found'
         }), 404
 
 

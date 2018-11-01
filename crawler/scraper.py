@@ -7,6 +7,7 @@ from datetime import datetime
 from tabula import convert_into
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
+from pdf2image import convert_from_path
 
 DOWNLOAD_PATH = './downloads/'
 OUTPUT_PATH = './outputs/'
@@ -163,6 +164,11 @@ class PdfReader():
             else:
                 menu[flag][leg[item]] = data[item]
         return menu
+
+    def genImage(self, file_path, output_path, out_name):
+        pdf = convert_from_path(file_path, 300)
+        for page in pdf:
+                page.save(f'{output_path}{out_name}.png', 'PNG')
 
 
 def runAll():
