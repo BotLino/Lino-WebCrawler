@@ -4,6 +4,12 @@ RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install default-jdk -y
 
+ADD install-poppler.sh .
+
+RUN chmod +x install-poppler.sh
+
+RUN ./install-poppler.sh
+
 WORKDIR /Lino-WebCrawler
 
 COPY ./requirements.txt .

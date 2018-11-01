@@ -30,6 +30,8 @@ unit_test:
     - apt-get update
     - apt-get upgrade -y
     - apt-get install default-jdk -y
+    - chmod +x install-poppler.sh
+    - ./install-poppler.sh
     - cd crawler
   script:
     - pytest
