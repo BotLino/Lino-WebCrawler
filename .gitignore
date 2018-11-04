@@ -6,3 +6,4 @@ crawler/outputs
 .vscode
 .pytest_cache
 .coverage
+static
