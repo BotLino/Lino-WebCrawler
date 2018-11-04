@@ -169,3 +169,8 @@ class TestServer():
         data = json.loads(res.get_data(as_text=True))
         assert res.status_code == 400
         assert data['status'] == 'error'
+
+    @freeze_time('2018-10-19')
+    def test_get_pdf(self, test_client, json_result_content):
+        res = test_client.get('/cardapio/pdf')
+        assert res.status_code == 200
