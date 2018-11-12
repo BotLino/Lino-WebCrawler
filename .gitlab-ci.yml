@@ -63,7 +63,7 @@ build cronjob:
   before_script:
     - docker login -u $DOCKER_USER -p $DOCKER_PASS
   script:
-    - docker build -t $CRONJOB_LATEST_IMAGE .
+    - docker build -t $CRONJOB_LATEST_IMAGE -f Cronjob.Dockerfile .
     - docker push $CRONJOB_LATEST_IMAGE
   only:
     - /master/
