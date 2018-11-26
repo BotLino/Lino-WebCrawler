@@ -4,7 +4,6 @@ from server import getMenu, isValidDay
 from pymongo import MongoClient
 from freezegun import freeze_time
 import os
-import pytest
 
 DB_URI = os.getenv('DB_URI', "localhost")
 
@@ -13,7 +12,6 @@ class TestServer():
 
     @freeze_time('2018-10-19')
     @mongomock.patch(servers=DB_URI, on_new='error')
-    @pytest.mark.skip()
     def test_update_database(self, test_client):
         try:
             res = test_client.get('/cardapio/update')
@@ -174,7 +172,6 @@ class TestServer():
         assert data['status'] == 'error'
 
     @freeze_time('2018-10-19')
-    @pytest.mark.skip()
     def test_get_pdf(self, test_client, json_result_content, tmpdir):
         res = test_client.get('/cardapio/pdf')
         assert res.status_code == 200

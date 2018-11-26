@@ -61,7 +61,7 @@ def getPdf(filePath='result.json'):
         for item in menuList:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
-            if 'FGA' in item['text'] or 'FGA' in item['path']:
+            if 'FGA' in item['path']:
                 _day = datetime.strptime(
                     regex.findall(item['text'])[0],
                     '%d/%m'
