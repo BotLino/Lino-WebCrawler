@@ -45,7 +45,7 @@ class PdfReader():
         for item in data.body:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
-            if campus in item['text'] or campus in item['path']:
+            if campus in item['path']:
                 pdf = pdfx.PDFx(item['url'])
                 pdf.download_pdfs(DOWNLOAD_PATH)
                 name = campus + str(fileIndex)
@@ -86,7 +86,7 @@ class PdfReader():
             for item in data.body:
                 # Adds validation in 'url' field
                 # to avoid errors due changes in links text
-                if 'FGA' in item['text'] or 'FGA' in item['url']:
+                if 'FGA' in item['url']:
                     _day = datetime.strptime(
                         regex.findall(item['text'])[0],
                         '%d/%m'
