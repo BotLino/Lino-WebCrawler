@@ -35,6 +35,8 @@ unit_test:
     - cd crawler
   script:
     - pytest
+  only:
+    - /master/
 
 
 ##############################################################################
@@ -53,6 +55,7 @@ build webcrawler:
     - docker push $LINO_LATEST_IMAGE
   only:
     - /master/
+    - /ciHomolog/
   environment: production
 
 build webcrawler homolog:
@@ -67,7 +70,6 @@ build webcrawler homolog:
     - docker push $LINO_LATEST_IMAGE:homolog
   only:
     - /devel/
-    - /ciHomolog/
 
 build cronjob:
   image: docker:latest
@@ -81,6 +83,7 @@ build cronjob:
     - docker push $CRONJOB_LATEST_IMAGE
   only:
     - /master/
+    - /ciHomolog/
 
 build cronjob homoloh:
   image: docker:latest
@@ -94,7 +97,6 @@ build cronjob homoloh:
     - docker push $CRONJOB_LATEST_IMAGE:homolog
   only:
     - /devel/
-    - ciHomolog
 
 
 ##############################################################################
