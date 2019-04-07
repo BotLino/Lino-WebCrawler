@@ -20,6 +20,6 @@ COPY . .
 
 WORKDIR /Lino-WebCrawler/crawler
 
-EXPOSE 5000
+EXPOSE 5010
 
 CMD ["python", "server.py"]
