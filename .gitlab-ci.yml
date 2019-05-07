@@ -4,8 +4,8 @@ stages:
   - deploy
 
 variables:
-  LINO_LATEST_IMAGE: $DOCKER_USER/webcrawler:latest
-  CRONJOB_LATEST_IMAGE: $DOCKER_USER/cronjob-webcrawler-ru:latest
+  LINO_LATEST_IMAGE: $DOCKER_USER/webcrawler
+  CRONJOB_LATEST_IMAGE: $DOCKER_USER/cronjob-webcrawler-ru
 
 ##############################################################################
 #                                 Test stage                                 #
@@ -35,6 +35,8 @@ unit_test:
     - cd crawler
   script:
     - pytest
+  only:
+    - /master/
 
 
 ##############################################################################
@@ -53,7 +55,21 @@ build webcrawler:
     - docker push $LINO_LATEST_IMAGE
   only:
     - /master/
+    - /ciHomolog/
   environment: production
+
+build webcrawler homolog:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+  script:
+    - docker build -t $LINO_LATEST_IMAGE:homolog .
+    - docker push $LINO_LATEST_IMAGE:homolog
+  only:
+    - /devel/
 
 build cronjob:
   image: docker:latest
@@ -67,6 +83,20 @@ build cronjob:
     - docker push $CRONJOB_LATEST_IMAGE
   only:
     - /master/
+    - /ciHomolog/
+
+build cronjob homoloh:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+  script:
+    - docker build -t $CRONJOB_LATEST_IMAGE:homolog -f Cronjob.Dockerfile .
+    - docker push $CRONJOB_LATEST_IMAGE:homolog
+  only:
+    - /devel/
 
 
 ##############################################################################
@@ -87,6 +117,20 @@ deploy webcrawler production:
   only:
     - /master/
 
+deploy webcrawler homolog:
+  image: cdrx/rancher-gitlab-deploy
+  stage: deploy
+  script:
+        - "upgrade
+            --rancher-url $RANCHER_HOMOLOG_URL
+            --rancher-key $RANCHER_HOMOLOG_ACCESS_KEY
+            --rancher-secret $RANCHER_HOMOLOG_SECRET_KEY
+            --environment $RANCHER_ENVIRONMENT
+            --stack $RANCHER_STACK
+            --service webcrawler-lino"
+  only:
+    - /devel/
+
 deploy cronjob production:
   image: cdrx/rancher-gitlab-deploy
   stage: deploy
@@ -100,3 +144,17 @@ deploy cronjob production:
             --rancher-url $RANCHER_URL"
   only:
     - /master/
+
+deploy cronjob homolog:
+  image: cdrx/rancher-gitlab-deploy
+  stage: deploy
+  script:
+        - "upgrade
+            --rancher-url $RANCHER_HOMOLOG_URL
+            --rancher-key $RANCHER_HOMOLOG_ACCESS_KEY
+            --rancher-secret $RANCHER_HOMOLOG_SECRET_KEY
+            --environment $RANCHER_ENVIRONMENT
+            --stack $RANCHER_STACK
+            --service cronjob-webcrawler-ru"
+  only:
+    - /devel/
