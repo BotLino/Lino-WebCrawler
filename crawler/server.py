@@ -26,6 +26,16 @@ valid_days = [
     'Sunday'
 ]
 
+days = {
+    'sunday': 'Domingo',
+    'monday': 'Segunda-feira',
+    'tuesday': 'Terça-feira',
+    'wednesday': 'Quarta-feira',
+    'thursday': 'Quinta-feira',
+    'friday': 'Sexta-feira',
+    'saturday': 'Sábado'
+}
+
 
 def getMenu():
     today = datetime.today().strftime('%d/%m/%Y')
@@ -90,28 +100,15 @@ def menu_day(day):
     return jsonify(menu[day])
 
 
-@app.route('/cardapio/<day>/Desjejum')
-def breakfastMenu(day):
+@app.route('/cardapio/<day>/<meal>/')
+def menu_specific_meal(day, meal):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
-    menu = getMenu()
-    return jsonify(menu[day]['DESJEJUM'])
-
-
-@app.route('/cardapio/<day>/Almoco')
-def lunchMenu(day):
-    if not isValidDay(day):
-        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
-    menu = getMenu()
-    return jsonify(menu[day]['ALMOÇO'])
-
-
-@app.route('/cardapio/<day>/Jantar')
-def dinnerMenu(day):
-    if not isValidDay(day):
-        return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
-    menu = getMenu()
-    return jsonify(menu[day]['JANTAR'])
+    p = PdfReader()
+    menu = p.genMenu()
+    day = days[day.lower()]
+    meal = meal.upper()
+    return jsonify(menu[day][meal])
 
 
 if __name__ == '__main__':
