@@ -18,10 +18,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-RUN chmod +x entrypoint.sh
-
-RUN ./entrypoint.sh
-
 WORKDIR /Lino-WebCrawler/crawler
 
 EXPOSE 5010
