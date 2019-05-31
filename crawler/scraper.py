@@ -3,16 +3,17 @@ import json
 import os
 import pandas as pd
 import re
+from pdf2text import *
 from datetime import datetime
 from tabula import convert_into
+from text2menu import get_menu
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from pdf2image import convert_from_path
 
 DOWNLOAD_PATH = './downloads/'
 OUTPUT_PATH = './outputs/'
-DEFAULT_CAMPUS = 'FGA'
-DEFAULT_FILE_NAME = 'FGA0'
+DEFAULT_CAMPUS = 'DARCY'
 
 
 class TheCrawler():
@@ -33,6 +34,7 @@ class JsonReader():
 class PdfReader():
     def __init__(self):
         self.data = JsonReader()
+        self.txtPath = ""
 
     def downloadMenu(self, campus):
         """
@@ -52,118 +54,11 @@ class PdfReader():
                 fileIndex += 1
                 fileName = item['url'].split('/')
                 fileName = fileName.pop()
-                convert_into(
-                    f'{DOWNLOAD_PATH}{fileName}',
-                    f'{OUTPUT_PATH}{name}.tsv',
-                    output_format='tsv')
+                filePath = f'{DOWNLOAD_PATH}{fileName}'
+                self.txtPath = extract_text_from_pdfs_recursively(filePath)
 
-    def genQuery(self, sheet):
-        """
-        Get a Data Frame with the RU menu,
-        and generates a query dictionary by merging related columns.
-        """
-        columns = list(sheet.columns.values)
-        queryList = {}
-        queryList['legenda'] = sheet[columns[0]]
-        queryList['Monday'] = sheet[columns[1]] + sheet[columns[2]]
-        queryList['Tuesday'] = sheet[columns[3]] + sheet[columns[4]]
-        queryList['Wednesday'] = sheet[columns[5]] + sheet[columns[6]]
-        queryList['Thursday'] = sheet[columns[7]]
-        queryList['Friday'] = sheet[columns[8]] + sheet[columns[9]]
-        queryList['Saturday'] = sheet[columns[10]] + sheet[columns[11]]
-        queryList['Sunday'] = sheet[columns[12]] + sheet[columns[13]]
-        return queryList
-
-    def getTodayFile(self):
-        """
-        Returns the fileName according to the current week.
-        """
-        data = self.data
-        today = datetime.now()
-        regex = re.compile(r'(?P<date>\d{2}/\d{2})')
-        fileIndex = 0
-        if len(data.body) > 3:
-            for item in data.body:
-                # Adds validation in 'url' field
-                # to avoid errors due changes in links text
-                if 'FGA' in item['url']:
-                    _day = datetime.strptime(
-                        regex.findall(item['text'])[0],
-                        '%d/%m'
-                    )
-                    if today >= _day:
-                        fileIndex += 1
-        if fileIndex > 0:
-            fileName = DEFAULT_CAMPUS + str(fileIndex-1)
-        else:
-            fileName = DEFAULT_FILE_NAME
-        return fileName
-
-    def getDayMenu(self, day):
-        """
-        Return the menu for an specified day.
-        """
-        fileName = self.getTodayFile()
-        filePath = OUTPUT_PATH + fileName + '.tsv'
-        sheet = pd.read_table(
-            f'{filePath}',
-            sep='\t',
-            na_filter=False,
-            header=1,
-            skipfooter=3,
-            dayfirst=True,
-            parse_dates=True,
-            engine='python')
-        query = self.genQuery(sheet)
-        return(query[day])
-
-    def getWeekMenu(self):
-        """
-        Generate a json file with all the week meals.
-        And returns the week meals.
-        """
-        weekMeals = {}
-        weekMeals['Monday'] = {}
-        weekMeals['Tuesday'] = {}
-        weekMeals['Wednesday'] = {}
-        weekMeals['Thursday'] = {}
-        weekMeals['Friday'] = {}
-
-        for i in weekMeals:
-            weekMeals[i] = self.genJson(i)
-        f = open('weekMenu.json', 'w')
-        f.write(json.dumps(weekMeals, indent=4, ensure_ascii=False))
-        f.close()
-        return weekMeals
-
-    def genJson(self, day):
-        """
-        Generates the menu and saves the json.
-        """
-        leg = self.getDayMenu('legenda')
-        data = self.getDayMenu(day)
-        rows = list(data.index.values)
-        menu = {}
-        menu['DESJEJUM'] = {}
-        menu['ALMOÇO'] = {}
-        menu['JANTAR'] = {}
-        for item in rows:
-            leg[item] = leg[item].replace('.', '')
-            if leg[item] == 'DESJEJUM':
-                flag = leg[item]
-                continue
-            elif leg[item] == 'ALMOÇO':
-                flag = leg[item]
-                continue
-            elif leg[item] == 'JANTAR':
-                flag = leg[item]
-                continue
-            elif leg[item] == '':
-                leg[item] = 'Pão:'
-                menu[flag][leg[item]] = data[item]
-            else:
-                menu[flag][leg[item]] = data[item]
-        return menu
+    def genMenu(self):
+        return get_menu(self.txtPath)
 
     def genImage(self, file_path, output_path, out_name):
         pdf = convert_from_path(file_path, 300)
@@ -176,7 +71,7 @@ def runAll():
     crawl.runCrawler()
     p = PdfReader()
     p.downloadMenu(DEFAULT_CAMPUS)
-    p.getWeekMenu()
+    p.genMenu()
 
 
 if __name__ == '__main__':
