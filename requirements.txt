@@ -8,3 +8,4 @@ freezegun
 mongomock
 pytest
 pdf2image
+tika
