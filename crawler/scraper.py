@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import re
 from pdf2text import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from tabula import convert_into
 from text2menu import get_menu
 from scrapy.crawler import CrawlerProcess
@@ -41,21 +41,35 @@ class PdfReader():
         Parses the pdf file to tsv.
         """
         data = self.data
+
+        today = datetime.today().date()
+        today = today + timedelta(days=1)
+        today = today.strftime('%d/%m/%Y')
+        dt = datetime.strptime(today, '%d/%m/%Y')
+        start = dt - timedelta(days=dt.weekday())
+        start = start.strftime('%d/%m/%Y')
+
+        days = []
         fileIndex = 0
+
         if not os.path.exists(OUTPUT_PATH):
             os.mkdir(OUTPUT_PATH)
+
         for item in data.body:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
-            if campus in item['path']:
-                pdf = pdfx.PDFx(item['url'])
-                pdf.download_pdfs(DOWNLOAD_PATH)
-                name = campus + str(fileIndex)
-                fileIndex += 1
-                fileName = item['url'].split('/')
-                fileName = fileName.pop()
-                filePath = f'{DOWNLOAD_PATH}{fileName}'
-                self.txtPath = extract_text_from_pdfs_recursively(filePath)
+            days = item['text'].split(" ")
+
+            if start in days:
+                if campus in item['path']:
+                    pdf = pdfx.PDFx(item['url'])
+                    pdf.download_pdfs(DOWNLOAD_PATH)
+                    name = campus + str(fileIndex)
+                    fileIndex += 1
+                    fileName = item['url'].split('/')
+                    fileName = fileName.pop()
+                    filePath = f'{DOWNLOAD_PATH}{fileName}'
+                    self.txtPath = extract_text_from_pdfs_recursively(filePath)
 
     def genMenu(self):
         return get_menu(self.txtPath)
