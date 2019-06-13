@@ -38,11 +38,10 @@ days = {
 
 
 def getMenu():
-    return {'deu bom': 'deu bom2'}
-    # today = datetime.today().strftime('%d/%m/%Y')
-    # cursor = collection.find({'dates': today})
-    # for record in cursor:
-    #     return record['menu']
+    today = datetime.today().strftime('%d/%m/%Y')
+    cursor = collection.find({'dates': today})
+    for record in cursor:
+        return record['menu']
 
 
 def isValidDay(day):
