@@ -96,7 +96,9 @@ def getPdf(filePath='result.json'):
 def menu_day(day):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
-    menu = getMenu()
+    p = PdfReader()
+    menu = p.genMenu()
+    day = days[day.lower()]
     return jsonify(menu[day])
 
 
@@ -109,7 +111,6 @@ def menu_specific_meal(day, meal):
     day = days[day.lower()]
     meal = meal.upper()
     return jsonify(menu[day][meal])
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port='5010')
