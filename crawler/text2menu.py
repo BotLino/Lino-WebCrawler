@@ -191,6 +191,7 @@ def get_menu():
             for i in range(0, len(menu[element][e])):
                 if menu[element][e][i].istitle() \
                    and menu[element][e][i-1] != '/' \
+                   and menu[element][e][i-1] != 'molho' \
                    and menu[element][e][i][0] != '/' \
                    and menu[element][e][i-1] != 'à' \
                    and menu[element][e][i] not in prohibited_list \
@@ -199,9 +200,7 @@ def get_menu():
                     is_title.append(i)
             _is_title[e] = []
             _is_title[e].append(is_title)
-            # print(menu[element][e])
             _is_title[e].append(menu[element][e])
-            # print(_is_title[e])
             is_title = []
 
         menu_index[element] = _is_title
@@ -229,4 +228,5 @@ def get_menu():
                 menu_days[days[i]][e][key] = complete_word
                 print(complete_word)
     print(menu_days)
+
     return menu_days
