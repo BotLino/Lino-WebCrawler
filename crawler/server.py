@@ -4,7 +4,7 @@ import re
 import json
 from populate import saveMenu
 from pymongo import MongoClient
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, jsonify, send_file
 from scraper import PdfReader
 
@@ -38,11 +38,10 @@ days = {
 
 
 def getMenu():
-    return {'deu bom': 'deu bom2'}
-    # today = datetime.today().strftime('%d/%m/%Y')
-    # cursor = collection.find({'dates': today})
-    # for record in cursor:
-    #     return record['menu']
+    today = datetime.today().strftime('%d/%m/%Y')
+    cursor = collection.find({'dates': today})
+    for record in cursor:
+        return record['menu']
 
 
 def isValidDay(day):
@@ -69,16 +68,21 @@ def getPdf(filePath='result.json'):
         today = datetime.now()
         regex = re.compile(r'(?P<date>\d{2}/\d{2})')
         pdf_name = ''
+
+        today = datetime.today().date()
+        today = today + timedelta(days=1)
+        today = today.strftime('%d/%m/%Y')
+        dt = datetime.strptime(today, '%d/%m/%Y')
+        start = dt - timedelta(days=dt.weekday())
+        start = start.strftime('%d/%m/%Y')
+
         for item in menuList:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
-            if 'darcy' in item['path'].lower():
-                _day = datetime.strptime(
-                    regex.findall(item['text'])[0],
-                    '%d/%m'
-                )
-                if today >= _day:
-                    pdf_name = item['path'].split('/').pop()
+            if start in item['text'].split(' '):
+                pdf_name = item['path'].split('/').pop()
+                break
+
     if pdf_name:
         pdf = PdfReader()
         pdf_path = './downloads/' + pdf_name
@@ -97,7 +101,9 @@ def getPdf(filePath='result.json'):
 def menu_day(day):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
-    menu = getMenu()
+    p = PdfReader()
+    menu = p.genMenu()
+    day = days[day.lower()]
     return jsonify(menu[day])
 
 
@@ -111,6 +117,5 @@ def menu_specific_meal(day, meal):
     meal = meal.upper()
     return jsonify(menu[day][meal])
 
-
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port='5010')

@@ -1,6 +1,24 @@
-def get_menu(fileName):
-    print(fileName)
-    file = open("./downloads/CARDPIO_DARCY_-_JUNHO_0306_A_0906.txt", 'r')
+import os
+import re
+from datetime import datetime, timedelta
+
+
+def get_menu():
+    path = "./downloads"
+
+    today = datetime.today().date()
+    today = today + timedelta(days=1)
+    today = today.strftime('%d/%m/%Y')
+    dt = datetime.strptime(today, '%d/%m/%Y')
+    start = dt - timedelta(days=dt.weekday())
+    start = start.strftime('%d-%m-%Y')
+    fileName = start + ".txt"
+
+    for menuFile in os.listdir(path):
+        if fileName == menuFile:
+            fileName = path + "/" + fileName
+            file = open(fileName, 'r')
+            break
 
     stringzona = ""
     line = ""
@@ -212,7 +230,3 @@ def get_menu(fileName):
                 print(complete_word)
     print(menu_days)
     return menu_days
-
-
-if __name__ == '__main__':
-    get_menu("ae")

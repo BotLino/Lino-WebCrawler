@@ -10,10 +10,14 @@ from text2menu import get_menu
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from pdf2image import convert_from_path
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 DOWNLOAD_PATH = './downloads/'
 OUTPUT_PATH = './outputs/'
-DEFAULT_CAMPUS = 'DARCY'
+DEFAULT_CAMPUS = 'darcy'
 
 
 class TheCrawler():
@@ -61,18 +65,18 @@ class PdfReader():
             days = item['text'].split(" ")
 
             if start in days:
-                if campus in item['path']:
-                    pdf = pdfx.PDFx(item['url'])
-                    pdf.download_pdfs(DOWNLOAD_PATH)
-                    name = campus + str(fileIndex)
-                    fileIndex += 1
-                    fileName = item['url'].split('/')
-                    fileName = fileName.pop()
-                    filePath = f'{DOWNLOAD_PATH}{fileName}'
-                    self.txtPath = extract_text_from_pdfs_recursively(filePath)
+                pdf = pdfx.PDFx(item['url'])
+                pdf.download_pdfs(DOWNLOAD_PATH)
+                name = campus + str(fileIndex)
+                fileIndex += 1
+                fileName = item['url'].split('/')
+                fileName = fileName.pop()
+                filePath = f'{DOWNLOAD_PATH}{fileName}'
+                self.txtPath = extract_text_from_pdfs_recursively(filePath)
+                break
 
     def genMenu(self):
-        return get_menu(self.txtPath)
+        return get_menu()
 
     def genImage(self, file_path, output_path, out_name):
         pdf = convert_from_path(file_path, 300)
