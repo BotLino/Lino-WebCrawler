@@ -40,6 +40,17 @@ class PdfReader():
         self.data = JsonReader()
         self.txt_path = ""
 
+    def verify_path(self):
+        if not os.path.exists(OUTPUT_PATH):
+            os.mkdir(OUTPUT_PATH)
+
+    def generate_file_name(self, item):
+        file_name = item['url'].split('/')
+        file_name = file_name.pop()
+        file_path = f'{DOWNLOAD_PATH}{file_name}'
+
+        return file_path
+
     def download_menu(self, campus):
         data = self.data
 
@@ -48,8 +59,7 @@ class PdfReader():
         days = []
         file_index = 0
 
-        if not os.path.exists(OUTPUT_PATH):
-            os.mkdir(OUTPUT_PATH)
+        verify_path()
 
         for item in data.body:
             # Adds validation in 'url' field
@@ -61,9 +71,7 @@ class PdfReader():
                 pdf.download_pdfs(DOWNLOAD_PATH)
                 name = campus + str(file_index)
                 file_index += 1
-                file_name = item['url'].split('/')
-                file_name = file_name.pop()
-                file_path = f'{DOWNLOAD_PATH}{file_name}'
+                file_path = generate_file_name(item)
                 self.txt_path = extract_text_from_pdfs_recursively(file_path)
                 break
 
@@ -72,6 +80,7 @@ class PdfReader():
 
     def gen_image(self, file_path, output_path, out_name):
         pdf = convert_from_path(file_path, 300)
+        
         for page in pdf:
                 page.save(f'{output_path}{out_name}.png', 'PNG')
 
