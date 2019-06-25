@@ -14,9 +14,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 DOWNLOAD_PATH = './downloads/'
 OUTPUT_PATH = './outputs/'
+
+# Hardcoded constant to get right pdf menu
 DEFAULT_CAMPUS = 'darcy'
 
 
@@ -80,7 +81,7 @@ class PdfReader():
 
     def gen_image(self, file_path, output_path, out_name):
         pdf = convert_from_path(file_path, 300)
-        
+
         for page in pdf:
                 page.save(f'{output_path}{out_name}.png', 'PNG')
 
