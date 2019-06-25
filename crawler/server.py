@@ -65,16 +65,8 @@ def weekMenu():
 def getPdf(filePath='result.json'):
     with open(filePath) as f:
         menuList = json.load(f)
-        today = datetime.now()
-        regex = re.compile(r'(?P<date>\d{2}/\d{2})')
         pdf_name = ''
-
-        today = datetime.today().date()
-        today = today + timedelta(days=1)
-        today = today.strftime('%d/%m/%Y')
-        dt = datetime.strptime(today, '%d/%m/%Y')
-        start = dt - timedelta(days=dt.weekday())
-        start = start.strftime('%d/%m/%Y')
+        start = get_first_day_week()
 
         for item in menuList:
             # Adds validation in 'url' field
@@ -116,6 +108,17 @@ def menu_specific_meal(day, meal):
     day = days[day.lower()]
     meal = meal.upper()
     return jsonify(menu[day][meal])
+
+
+def get_first_day_week(self):
+    today = datetime.today().date()
+    today = today + timedelta(days=1)
+    today = today.strftime('%d/%m/%Y')
+    dt = datetime.strptime(today, '%d/%m/%Y')
+    start = dt - timedelta(days=dt.weekday())
+    start = start.strftime('%d/%m/%Y')
+
+    return start
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port='5010')

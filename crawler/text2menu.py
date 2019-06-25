@@ -3,15 +3,21 @@ import re
 from datetime import datetime, timedelta
 
 
-def get_menu():
-    path = "./downloads"
-
+def get_first_day_week(self):
     today = datetime.today().date()
     today = today + timedelta(days=1)
     today = today.strftime('%d/%m/%Y')
     dt = datetime.strptime(today, '%d/%m/%Y')
     start = dt - timedelta(days=dt.weekday())
     start = start.strftime('%d-%m-%Y')
+
+    return start
+
+
+def get_menu():
+    path = "./downloads"
+
+    start = get_first_day_week()
     fileName = start + ".txt"
 
     for menuFile in os.listdir(path):
