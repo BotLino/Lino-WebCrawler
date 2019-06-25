@@ -3,7 +3,7 @@ import os
 import current_date
 import json
 from datetime import datetime
-from populate import saveMenu
+from populate import save_menu
 from pymongo import MongoClient
 from flask import Flask, jsonify, send_file
 from scraper import PdfReader
@@ -54,7 +54,7 @@ def populate_database():
     subprocess.call('touch weekMenu.json', shell=True)
     subprocess.check_output(['python', 'scraper.py'])
 
-    saveMenu('weekMenu.json')
+    save_menu('weekMenu.json')
 
     return jsonify({'status': 'Success', 'updated': True})
 
