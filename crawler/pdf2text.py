@@ -3,7 +3,7 @@ import os
 import current_date
 
 
-def write_txt_file(self, pdf_contents, path_to_txt):
+def write_txt_file(pdf_contents, path_to_txt):
     with open(path_to_txt, 'w') as txt_file:
         print("Writing contents to " + path_to_txt)
         txt_file.write(pdf_contents['content'])

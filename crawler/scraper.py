@@ -58,7 +58,7 @@ class PdfReader():
         days = []
         file_index = 0
 
-        verify_path()
+        self.verify_path()
 
         for item in data.body:
             # Adds validation in 'url' field
@@ -72,7 +72,7 @@ class PdfReader():
                 name = campus + str(file_index)
                 file_index += 1
 
-                file_path = generate_file_name(item)
+                file_path = self.generate_file_name(item)
                 self.txt_path = extract_text_from_pdfs_recursively(file_path)
 
                 break
