@@ -1,10 +1,9 @@
 import subprocess
 import os
-import re
+import current_date
 import json
 from populate import saveMenu
 from pymongo import MongoClient
-from datetime import datetime, timedelta
 from flask import Flask, jsonify, send_file
 from scraper import PdfReader
 
@@ -66,7 +65,7 @@ def getPdf(filePath='result.json'):
     with open(filePath) as f:
         menuList = json.load(f)
         pdf_name = ''
-        start = get_first_day_week()
+        start = current_date.get_first_day_week('/')
 
         for item in menuList:
             # Adds validation in 'url' field
@@ -109,16 +108,6 @@ def menu_specific_meal(day, meal):
     meal = meal.upper()
     return jsonify(menu[day][meal])
 
-
-def get_first_day_week(self):
-    today = datetime.today().date()
-    today = today + timedelta(days=1)
-    today = today.strftime('%d/%m/%Y')
-    dt = datetime.strptime(today, '%d/%m/%Y')
-    start = dt - timedelta(days=dt.weekday())
-    start = start.strftime('%d/%m/%Y')
-
-    return start
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port='5010')

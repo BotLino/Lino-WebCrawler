@@ -4,8 +4,8 @@ import os
 import pandas as pd
 import re
 from pdf2text import *
-from datetime import datetime, timedelta
 from tabula import convert_into
+import current_date
 from text2menu import get_menu
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
@@ -40,20 +40,10 @@ class PdfReader():
         self.data = JsonReader()
         self.txtPath = ""
 
-    def get_first_day_week(self):
-        today = datetime.today().date()
-        today = today + timedelta(days=1)
-        today = today.strftime('%d/%m/%Y')
-        dt = datetime.strptime(today, '%d/%m/%Y')
-        start = dt - timedelta(days=dt.weekday())
-        start = start.strftime('%d/%m/%Y')
-
-        return start
-
     def downloadMenu(self, campus):
         data = self.data
 
-        start = get_first_day_week()
+        start = current_date.get_first_day_week('/')
 
         days = []
         fileIndex = 0
