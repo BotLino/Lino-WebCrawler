@@ -7,7 +7,9 @@ def get_first_day_week(signal):
     today = datetime.today().date()
     today = today + timedelta(days=1)
     today = today.strftime('%d/%m/%Y')
+
     dt = datetime.strptime(today, '%d/%m/%Y')
+
     start = dt - timedelta(days=dt.weekday())
     start = start.strftime(date_format)
 

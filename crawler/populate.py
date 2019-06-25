@@ -19,6 +19,7 @@ def getDateRange(filePath):
         today = datetime.datetime.now()
         regex = re.compile(r'(?P<date>\d{2}/\d{2})')
         dateRange = []
+
         for item in menuList:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
@@ -27,9 +28,12 @@ def getDateRange(filePath):
                     regex.findall(item['text'])[0],
                     '%d/%m'
                 )
+
                 if today >= _day:
                     dateRange = regex.findall(item['text'])
+
         dateRange = [date + '/2018' for date in dateRange]
+
         return dateRange
 
 
@@ -41,9 +45,11 @@ def genDatesList(startDate, endDate):
     startDate = datetime.datetime.strptime(startDate, '%d/%m/%Y')
     endDate = datetime.datetime.strptime(endDate, '%d/%m/%Y')
     step = datetime.timedelta(days=1)
+
     while startDate <= endDate:
         allDates.append(startDate.strftime('%d/%m/%Y'))
         startDate += step
+
     return allDates
 
 
@@ -54,6 +60,7 @@ def genWeekMenuObj(dateList, weekMenu):
     weekObj = {}
     weekObj['menu'] = weekMenu
     weekObj['dates'] = dateList
+
     return weekObj
 
 

@@ -54,9 +54,7 @@ class PdfReader():
 
     def download_menu(self, campus):
         data = self.data
-
         start = current_date.get_first_day_week('/')
-
         days = []
         file_index = 0
 
@@ -70,10 +68,13 @@ class PdfReader():
             if start in days:
                 pdf = pdfx.PDFx(item['url'])
                 pdf.download_pdfs(DOWNLOAD_PATH)
+
                 name = campus + str(file_index)
                 file_index += 1
+
                 file_path = generate_file_name(item)
                 self.txt_path = extract_text_from_pdfs_recursively(file_path)
+
                 break
 
     def gen_menu(self):
@@ -89,6 +90,7 @@ class PdfReader():
 def run_all():
     crawl = TheCrawler()
     crawl.runCrawler()
+
     p = PdfReader()
     p.download_menu(DEFAULT_CAMPUS)
     p.gen_menu()

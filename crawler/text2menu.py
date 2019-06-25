@@ -71,14 +71,17 @@ def get_menu():
         "Refresco:": []
     }
 
-    keys_desjejum = ["Bebidas", "Vegetariano", "Achocolatado", "Pão", "Complemento",
+    keys_desjejum = ["Bebidas", "Vegetariano", "Achocolatado",
+                     "Pão", "Complemento",
                      "Comp.", "Fruta"]
 
     keys_almoco = ["Salada:", "Molho:", "Principal:", "Guarnição:",
-                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:", "Refresco:"]
+                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:",
+                   "Refresco:"]
 
     keys_jantar = ["Salada:", "Molho:", "Principal:", "Sopa:", "Pão:",
-                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:", "Refresco:"]
+                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:",
+                   "Refresco:"]
 
     key = ""
     counter_v = 1

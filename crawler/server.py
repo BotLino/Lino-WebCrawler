@@ -2,6 +2,7 @@ import subprocess
 import os
 import current_date
 import json
+from datetime import datetime
 from populate import saveMenu
 from pymongo import MongoClient
 from flask import Flask, jsonify, send_file
@@ -39,6 +40,7 @@ days = {
 def getMenu():
     today = datetime.today().strftime('%d/%m/%Y')
     cursor = collection.find({'dates': today})
+
     for record in cursor:
         return record['menu']
 
@@ -51,7 +53,9 @@ def isValidDay(day):
 def populate_database():
     subprocess.call('touch weekMenu.json', shell=True)
     subprocess.check_output(['python', 'scraper.py'])
+
     saveMenu('weekMenu.json')
+
     return jsonify({'status': 'Success', 'updated': True})
 
 
@@ -72,6 +76,7 @@ def getPdf(filePath='result.json'):
             # to avoid errors due changes in links text
             if start in item['text'].split(' '):
                 pdf_name = item['path'].split('/').pop()
+
                 break
 
     if pdf_name:
@@ -79,8 +84,8 @@ def getPdf(filePath='result.json'):
         pdf_path = './downloads/' + pdf_name
         os.mkdir('./static') if 'static' not in os.listdir('./') else None
         pdf.gen_image(pdf_path, './static/', 'pdfImage')
-        return send_file('./static/pdfImage.png')
 
+        return send_file('./static/pdfImage.png')
     else:
         return jsonify({
             'status': 'error',
@@ -92,9 +97,11 @@ def getPdf(filePath='result.json'):
 def menu_day(day):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
+
     p = PdfReader()
     menu = p.gen_menu()
     day = days[day.lower()]
+
     return jsonify(menu[day])
 
 
@@ -102,10 +109,12 @@ def menu_day(day):
 def menu_specific_meal(day, meal):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
+
     p = PdfReader()
     menu = p.gen_menu()
     day = days[day.lower()]
     meal = meal.upper()
+
     return jsonify(menu[day][meal])
 
 
