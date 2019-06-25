@@ -78,7 +78,7 @@ def getPdf(filePath='result.json'):
         pdf = PdfReader()
         pdf_path = './downloads/' + pdf_name
         os.mkdir('./static') if 'static' not in os.listdir('./') else None
-        pdf.genImage(pdf_path, './static/', 'pdfImage')
+        pdf.gen_image(pdf_path, './static/', 'pdfImage')
         return send_file('./static/pdfImage.png')
 
     else:
@@ -93,7 +93,7 @@ def menu_day(day):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
     p = PdfReader()
-    menu = p.genMenu()
+    menu = p.gen_menu()
     day = days[day.lower()]
     return jsonify(menu[day])
 
@@ -103,7 +103,7 @@ def menu_specific_meal(day, meal):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
     p = PdfReader()
-    menu = p.genMenu()
+    menu = p.gen_menu()
     day = days[day.lower()]
     meal = meal.upper()
     return jsonify(menu[day][meal])

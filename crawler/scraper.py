@@ -38,15 +38,15 @@ class JsonReader():
 class PdfReader():
     def __init__(self):
         self.data = JsonReader()
-        self.txtPath = ""
+        self.txt_path = ""
 
-    def downloadMenu(self, campus):
+    def download_menu(self, campus):
         data = self.data
 
         start = current_date.get_first_day_week('/')
 
         days = []
-        fileIndex = 0
+        file_index = 0
 
         if not os.path.exists(OUTPUT_PATH):
             os.mkdir(OUTPUT_PATH)
@@ -59,30 +59,30 @@ class PdfReader():
             if start in days:
                 pdf = pdfx.PDFx(item['url'])
                 pdf.download_pdfs(DOWNLOAD_PATH)
-                name = campus + str(fileIndex)
-                fileIndex += 1
-                fileName = item['url'].split('/')
-                fileName = fileName.pop()
-                filePath = f'{DOWNLOAD_PATH}{fileName}'
-                self.txtPath = extract_text_from_pdfs_recursively(filePath)
+                name = campus + str(file_index)
+                file_index += 1
+                file_name = item['url'].split('/')
+                file_name = file_name.pop()
+                file_path = f'{DOWNLOAD_PATH}{file_name}'
+                self.txt_path = extract_text_from_pdfs_recursively(file_path)
                 break
 
-    def genMenu(self):
+    def gen_menu(self):
         return get_menu()
 
-    def genImage(self, file_path, output_path, out_name):
+    def gen_image(self, file_path, output_path, out_name):
         pdf = convert_from_path(file_path, 300)
         for page in pdf:
                 page.save(f'{output_path}{out_name}.png', 'PNG')
 
 
-def runAll():
+def run_all():
     crawl = TheCrawler()
     crawl.runCrawler()
     p = PdfReader()
-    p.downloadMenu(DEFAULT_CAMPUS)
-    p.genMenu()
+    p.download_menu(DEFAULT_CAMPUS)
+    p.gen_menu()
 
 
 if __name__ == '__main__':
-    runAll()
+    run_all()
