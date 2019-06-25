@@ -1,17 +1,11 @@
 import os
-import re
-from datetime import datetime, timedelta
+import current_date
 
 
 def get_menu():
     path = "./downloads"
 
-    today = datetime.today().date()
-    today = today + timedelta(days=1)
-    today = today.strftime('%d/%m/%Y')
-    dt = datetime.strptime(today, '%d/%m/%Y')
-    start = dt - timedelta(days=dt.weekday())
-    start = start.strftime('%d-%m-%Y')
+    start = current_date.get_first_day_week('-')
     fileName = start + ".txt"
 
     for menuFile in os.listdir(path):
@@ -77,14 +71,17 @@ def get_menu():
         "Refresco:": []
     }
 
-    keys_desjejum = ["Bebidas", "Vegetariano", "Achocolatado", "Pão", "Complemento",
+    keys_desjejum = ["Bebidas", "Vegetariano", "Achocolatado",
+                     "Pão", "Complemento",
                      "Comp.", "Fruta"]
 
     keys_almoco = ["Salada:", "Molho:", "Principal:", "Guarnição:",
-                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:", "Refresco:"]
+                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:",
+                   "Refresco:"]
 
     keys_jantar = ["Salada:", "Molho:", "Principal:", "Sopa:", "Pão:",
-                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:", "Refresco:"]
+                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:",
+                   "Refresco:"]
 
     key = ""
     counter_v = 1
