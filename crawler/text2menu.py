@@ -1,6 +1,18 @@
-def get_menu(fileName):
-    print(fileName)
-    file = open("./downloads/CARDPIO_DARCY_-_JUNHO_0306_A_0906.txt", 'r')
+import os
+import current_date
+
+
+def get_menu():
+    path = "./downloads"
+
+    start = current_date.get_first_day_week('-')
+    fileName = start + ".txt"
+
+    for menuFile in os.listdir(path):
+        if fileName == menuFile:
+            fileName = path + "/" + fileName
+            file = open(fileName, 'r')
+            break
 
     stringzona = ""
     line = ""
@@ -59,14 +71,17 @@ def get_menu(fileName):
         "Refresco:": []
     }
 
-    keys_desjejum = ["Bebidas", "Vegetariano", "Achocolatado", "Pão", "Complemento",
+    keys_desjejum = ["Bebidas", "Vegetariano", "Achocolatado",
+                     "Pão", "Complemento",
                      "Comp.", "Fruta"]
 
     keys_almoco = ["Salada:", "Molho:", "Principal:", "Guarnição:",
-                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:", "Refresco:"]
+                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:",
+                   "Refresco:"]
 
     keys_jantar = ["Salada:", "Molho:", "Principal:", "Sopa:", "Pão:",
-                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:", "Refresco:"]
+                   "Vegetariano:", "Acompanhamentos:", "Sobremesa:",
+                   "Refresco:"]
 
     key = ""
     counter_v = 1
@@ -173,6 +188,7 @@ def get_menu(fileName):
             for i in range(0, len(menu[element][e])):
                 if menu[element][e][i].istitle() \
                    and menu[element][e][i-1] != '/' \
+                   and menu[element][e][i-1] != 'molho' \
                    and menu[element][e][i][0] != '/' \
                    and menu[element][e][i-1] != 'à' \
                    and menu[element][e][i] not in prohibited_list \
@@ -181,9 +197,7 @@ def get_menu(fileName):
                     is_title.append(i)
             _is_title[e] = []
             _is_title[e].append(is_title)
-            # print(menu[element][e])
             _is_title[e].append(menu[element][e])
-            # print(_is_title[e])
             is_title = []
 
         menu_index[element] = _is_title
@@ -211,8 +225,5 @@ def get_menu(fileName):
                 menu_days[days[i]][e][key] = complete_word
                 print(complete_word)
     print(menu_days)
+
     return menu_days
-
-
-if __name__ == '__main__':
-    get_menu("ae")

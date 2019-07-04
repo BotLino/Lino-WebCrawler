@@ -1,10 +1,10 @@
 import subprocess
 import os
-import re
+import current_date
 import json
-from populate import saveMenu
-from pymongo import MongoClient
 from datetime import datetime
+from populate import save_menu
+from pymongo import MongoClient
 from flask import Flask, jsonify, send_file
 from scraper import PdfReader
 
@@ -40,6 +40,7 @@ days = {
 def getMenu():
     today = datetime.today().strftime('%d/%m/%Y')
     cursor = collection.find({'dates': today})
+
     for record in cursor:
         return record['menu']
 
@@ -52,7 +53,9 @@ def isValidDay(day):
 def populate_database():
     subprocess.call('touch weekMenu.json', shell=True)
     subprocess.check_output(['python', 'scraper.py'])
-    saveMenu('weekMenu.json')
+
+    save_menu('weekMenu.json')
+
     return jsonify({'status': 'Success', 'updated': True})
 
 
@@ -65,26 +68,24 @@ def weekMenu():
 def getPdf(filePath='result.json'):
     with open(filePath) as f:
         menuList = json.load(f)
-        today = datetime.now()
-        regex = re.compile(r'(?P<date>\d{2}/\d{2})')
         pdf_name = ''
+        start = current_date.get_first_day_week('/')
+
         for item in menuList:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
-            if 'darcy' in item['path'].lower():
-                _day = datetime.strptime(
-                    regex.findall(item['text'])[0],
-                    '%d/%m'
-                )
-                if today >= _day:
-                    pdf_name = item['path'].split('/').pop()
+            if start in item['text'].split(' '):
+                pdf_name = item['path'].split('/').pop()
+
+                break
+
     if pdf_name:
         pdf = PdfReader()
         pdf_path = './downloads/' + pdf_name
         os.mkdir('./static') if 'static' not in os.listdir('./') else None
-        pdf.genImage(pdf_path, './static/', 'pdfImage')
-        return send_file('./static/pdfImage.png')
+        pdf.gen_image(pdf_path, './static/', 'pdfImage')
 
+        return send_file('./static/pdfImage.png')
     else:
         return jsonify({
             'status': 'error',
@@ -96,7 +97,11 @@ def getPdf(filePath='result.json'):
 def menu_day(day):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
-    menu = getMenu()
+
+    p = PdfReader()
+    menu = p.gen_menu()
+    day = days[day.lower()]
+
     return jsonify(menu[day])
 
 
@@ -104,12 +109,14 @@ def menu_day(day):
 def menu_specific_meal(day, meal):
     if not isValidDay(day):
         return jsonify({'status': 'error', 'description': 'Wrong day'}), 400
+
     p = PdfReader()
-    menu = p.genMenu()
+    menu = p.gen_menu()
     day = days[day.lower()]
     meal = meal.upper()
+
     return jsonify(menu[day][meal])
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port='5010')

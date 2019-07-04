@@ -10,16 +10,17 @@ db = client.ru
 collection = db.menu
 
 
-def getDateRange(filePath):
+def get_date_range(filePath):
     """
     Returns the start and end date for a given menu.
     """
     with open(filePath) as f:
-        menuList = json.load(f)
+        menu_list = json.load(f)
         today = datetime.datetime.now()
         regex = re.compile(r'(?P<date>\d{2}/\d{2})')
-        dateRange = []
-        for item in menuList:
+        date_range = []
+
+        for item in menu_list:
             # Adds validation in 'url' field
             # to avoid errors due changes in links text
             if 'FGA' in item['path']:
@@ -27,13 +28,16 @@ def getDateRange(filePath):
                     regex.findall(item['text'])[0],
                     '%d/%m'
                 )
+
                 if today >= _day:
-                    dateRange = regex.findall(item['text'])
-        dateRange = [date + '/2018' for date in dateRange]
-        return dateRange
+                    date_range = regex.findall(item['text'])
+
+        date_range = [date + '/2018' for date in date_range]
+
+        return date_range
 
 
-def genDatesList(startDate, endDate):
+def generate_dates_list(startDate, endDate):
     """
     Creates a list of all dates between a given range.
     """
@@ -41,33 +45,36 @@ def genDatesList(startDate, endDate):
     startDate = datetime.datetime.strptime(startDate, '%d/%m/%Y')
     endDate = datetime.datetime.strptime(endDate, '%d/%m/%Y')
     step = datetime.timedelta(days=1)
+
     while startDate <= endDate:
         allDates.append(startDate.strftime('%d/%m/%Y'))
         startDate += step
+
     return allDates
 
 
-def genWeekMenuObj(dateList, weekMenu):
+def generate_week_menu_objects(dateList, weekMenu):
     """
     Creates the object with the attributes to save in teh database.
     """
     weekObj = {}
     weekObj['menu'] = weekMenu
     weekObj['dates'] = dateList
+
     return weekObj
 
 
-def saveMenu(filePath, datesPath='result.json'):
+def save_menu(filePath, datesPath='result.json'):
     """
     Saves the content of filePath to the database.
     """
     f = open(filePath, 'r')
     weekMeals = json.load(f)
-    dates = getDateRange(datesPath)
-    dates = genDatesList(*dates)
-    obj = genWeekMenuObj(dates, weekMeals)
+    dates = get_date_range(datesPath)
+    dates = generate_dates_list(*dates)
+    obj = generate_week_menu_objects(dates, weekMeals)
     collection.replace_one({'dates': dates}, obj, upsert=True)
 
 
 if __name__ == '__main__':
-    saveMenu('weekMenu.json')
+    save_menu('weekMenu.json')

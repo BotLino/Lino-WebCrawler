@@ -1,5 +1,7 @@
 # Lino-WebCrawler
 
+<a href="https://codeclimate.com/github/BotLino/Lino-WebCrawler/maintainability"><img src="https://api.codeclimate.com/v1/badges/ec1c98cb93b2fe8c01c0/maintainability" /></a>
+
 ## Objetivo
 
 Microsserviço feito com o objetivo de buscar o cardápio do RU e envia-lo para o Core (Lino)
